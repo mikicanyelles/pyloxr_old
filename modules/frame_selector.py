@@ -262,7 +262,30 @@ def txt_saver(sel_bool):
     txt.close()
     txt_ext.close()
 
-    #return
+
+def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
+    '''
+    Function for saving the pdbs of all the frames which satisfy the imposed criteria.
+    '''
+
+    dir_name = 'frames_'
+    for i in range(len(atoms_list)):
+        dir_name = dir_name + str(atoms_list[i][0][0])
+
+
+    if dir_name not in os.listdir():
+        os.mkdir(dir_name)
+
+    stderr_ = open(os.devnull, 'w')
+    stderr_ = sys.stderr
+
+    for i in range(len(sel_bool)):
+        if sel_bool[i] == True:
+            u.trajectory[i]
+            sel = u.select_atoms('all')
+            sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
+    stderr_.close()
+
 
 
 def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None, 'u_loaded' : False})):
@@ -285,7 +308,8 @@ def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 
             print("Sorry, answer again, please.")
             continue
 
-    #print(atoms_list)
+    print(atoms_list)
+    print(cut_off)
 
     u, argsdict, sel_bool = bool_creator(u, argsdict, atoms_list, cut_off)
 
