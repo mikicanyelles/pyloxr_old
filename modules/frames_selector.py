@@ -4,6 +4,7 @@ from numpy import max, min, mean, array
 import sys; import os
 from progressbar import *
 import copy
+import shutil
 
 #argsdict=dict({'trajectory': ['3rde.prmtop', None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': 'plots', 'timer': False, 'menu_type' : None, 'u_loaded' : False})
 
@@ -273,17 +274,66 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
         dir_name = dir_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
 
     if dir_name not in os.listdir():
-        #os.mkdir(dir_name)
-        print(dir_name)
+        os.mkdir(dir_name)
+        #print(dir_name)
+    elif dir_name in os.listdir():
+        while True:
+            quest = input('%s subdirectory aready exists. Do you want to overwrite its content (1) or to give an alternative name to the subdirectory (2)? ([1]/2) ' % dir_name)
+            if quest in ('1', '2', ''):
+                if quest in ('', '1'):
+                    shutil.rmtree(dir_name)
+                    os.mkdir(dir_name)
+                    break
+                elif quest == '2':
+                    while True:
+                        dir_name = input('Type the new name of the subdirectory: ')
+                        quest2 = input('Is \'%s\' correct? ([y]/n)' )
+                        if quest2 in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
+                            break
+                        elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO'):
+                            continue
+                            
+                    if dir_name not in os.listdir():
+                        break
+                    elif dir_name in os.listdir():
+                        continue
+
+            elif quest not in ('1', '2', ''):
+                print('Choose 1 or 2.')
+                continue
 
     stderr_ = open(os.devnull, 'w')
     stderr_ = sys.stderr
 
-    #for i in range(len(sel_bool)):
-        #if sel_bool[i] == True:
-            #u.trajectory[i]
-            #sel = u.select_atoms('all')
-            #sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
+    for i in range(len(sel_bool)):
+        if sel_bool[i] == True:
+            u.trajectory[i]
+            sel = u.select_atoms('all')
+            sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
+    stderr_.close()
+
+
+def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
+    '''
+    Function for saving the pdbs of the desired frames which satisfy the imposed criteria.
+    '''
+
+    dir_name = 'frames'
+    for i in range(len(atoms_list)):
+        dir_name = dir_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
+
+    if dir_name not in os.listdir():
+        os.mkdir(dir_name)
+        #print(dir_name)
+
+    stderr_ = open(os.devnull, 'w')
+    stderr_ = sys.stderr
+
+    for i in range(len(sel_bool)):
+        if sel_bool[i] == True:
+            u.trajectory[i]
+            sel = u.select_atoms('all')
+            sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
     stderr_.close()
 
 
@@ -326,7 +376,7 @@ def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 
             print('Please, answer \'yes\' or \'no\'.')
             continue
 
-    pdb_saver_all(u, sel_bool, atoms_list, cut_off)
+
     #print(sel_bool)
     #del atoms_list; del cut_off; del atoms_list_; del cut_off_
     return u, argsdict
