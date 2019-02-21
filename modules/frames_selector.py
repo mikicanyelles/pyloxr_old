@@ -268,22 +268,22 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
     Function for saving the pdbs of all the frames which satisfy the imposed criteria.
     '''
 
-    dir_name = 'frames_'
+    dir_name = 'frames'
     for i in range(len(atoms_list)):
-        dir_name = dir_name + str(atoms_list[i][0][0])
-
+        dir_name = dir_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
 
     if dir_name not in os.listdir():
-        os.mkdir(dir_name)
+        #os.mkdir(dir_name)
+        print(dir_name)
 
     stderr_ = open(os.devnull, 'w')
     stderr_ = sys.stderr
 
-    for i in range(len(sel_bool)):
-        if sel_bool[i] == True:
-            u.trajectory[i]
-            sel = u.select_atoms('all')
-            sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
+    #for i in range(len(sel_bool)):
+        #if sel_bool[i] == True:
+            #u.trajectory[i]
+            #sel = u.select_atoms('all')
+            #sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
     stderr_.close()
 
 
@@ -308,10 +308,10 @@ def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 
             print("Sorry, answer again, please.")
             continue
 
-    print(atoms_list)
+    #print(atoms_list)
     print(atoms_list[0][0][0])
     print(atoms_list[1][0][0])
-    print(cut_off)
+    #print(cut_off)
 
     u, argsdict, sel_bool = bool_creator(u, argsdict, atoms_list, cut_off)
 
