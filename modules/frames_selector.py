@@ -287,7 +287,7 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
                 elif quest == '2':
                     while True:
                         dir_name = input('Type the new name of the subdirectory: ')
-                        quest2 = input('Is \'%s\' correct? ([y]/n)' )
+                        quest2 = input('Is \'%s\' correct? ([y]/n) ' % dir_name)
                         if quest2 in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
                             break
                         elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO'):
@@ -302,39 +302,29 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
                 print('Choose 1 or 2.')
                 continue
 
+    time_ = 0
+    widgets2 = ['Progress: ', Percentage(), ' ', Bar(marker='#',left='[',right=']'),
+           ' ', ETA(), ' | ', Timer(), ' ']
+
+    pbar2 = ProgressBar(widgets=widgets2, maxval=len(sel_bool))
+    pbar2.start()
+
     stderr_ = open(os.devnull, 'w')
-    stderr_ = sys.stderr
+    sys.stderr = stderr_
 
     for i in range(len(sel_bool)):
+        time_+=1
         if sel_bool[i] == True:
             u.trajectory[i]
             sel = u.select_atoms('all')
             sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
+        
+        pbar2.update(time_)
+
+    pbar2.finish()
     stderr_.close()
 
 
-def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
-    '''
-    Function for saving the pdbs of the desired frames which satisfy the imposed criteria.
-    '''
-
-    dir_name = 'frames'
-    for i in range(len(atoms_list)):
-        dir_name = dir_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
-
-    if dir_name not in os.listdir():
-        os.mkdir(dir_name)
-        #print(dir_name)
-
-    stderr_ = open(os.devnull, 'w')
-    stderr_ = sys.stderr
-
-    for i in range(len(sel_bool)):
-        if sel_bool[i] == True:
-            u.trajectory[i]
-            sel = u.select_atoms('all')
-            sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
-    stderr_.close()
 
 
 
@@ -359,8 +349,8 @@ def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 
             continue
 
     #print(atoms_list)
-    print(atoms_list[0][0][0])
-    print(atoms_list[1][0][0])
+    #print(atoms_list[0][0][0])
+    #print(atoms_list[1][0][0])
     #print(cut_off)
 
     u, argsdict, sel_bool = bool_creator(u, argsdict, atoms_list, cut_off)
@@ -376,6 +366,7 @@ def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 
             print('Please, answer \'yes\' or \'no\'.')
             continue
 
+    pdb_saver_all(u, sel_bool, atoms_list, cut_off)
 
     #print(sel_bool)
     #del atoms_list; del cut_off; del atoms_list_; del cut_off_
