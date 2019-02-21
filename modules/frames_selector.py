@@ -326,7 +326,7 @@ def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 
             print('Please, answer \'yes\' or \'no\'.')
             continue
 
-
+    pdb_saver_all(u, sel_bool, atoms_list, cut_off)
     #print(sel_bool)
     #del atoms_list; del cut_off; del atoms_list_; del cut_off_
     return u, argsdict
