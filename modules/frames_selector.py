@@ -1,15 +1,13 @@
 from MDAnalysis import Universe
 import MDAnalysis.lib.distances as distanceslib
-from numpy import max, min, mean, array
+#from numpy import max, min, mean, array
 import sys; import os
 from progressbar import *
 import copy
 import shutil
 
-#argsdict=dict({'trajectory': ['3rde.prmtop', None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': 'plots', 'timer': False, 'menu_type' : None, 'u_loaded' : False})
 
-
-def ask(argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None, 'u_loaded' : False})):    ### Ask for atoms lists
+def ask(argsdict):
     '''
     Function that asks for atom indexes (the atoms which will be used for stablishing the criteria of selection).
     It lets compare atoms between them so only the shortest distance is used.
@@ -87,13 +85,14 @@ def ask(argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False
                         for i in range(0, len(subs_atoms)):
                             subs_atoms[i] = int(subs_atoms[i])
                     else :
-                        subs_atoms = [int(subs_atoms_input)]
+                        subs_atoms = [int(subs_atoms_input)] 
                     break
                 except ValueError:
                     print('(Some of) the number(s) of the atom(s) has not been correctly introduced.\n')
                     continue
             #if len(subs_atoms) > 1:
             atoms_list = [prot_atoms, subs_atoms]
+            continue
             #else :
             #    atoms_list = list([prot_atoms], [subs_atoms])
 
@@ -107,7 +106,7 @@ def ask(argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False
 
     while True:
         try :
-            cut_off = float(input("Type the cut-off distance (in Ãƒ): "))
+            cut_off = float(input("Type the cut-off distance (in Å): "))
             break
         except ValueError:
             print("The cut-off distance has not been well specified. Please, retype the cut-off distance.")
@@ -278,7 +277,7 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
         #print(dir_name)
     elif dir_name in os.listdir():
         while True:
-            quest = input('%s subdirectory aready exists. Do you want to overwrite its content (1) or to give an alternative name to the subdirectory (2)? ([1]/2) ' % dir_name)
+            quest = input('%s subdirectory aready exists. Do you want to overwrite its content (1) or give an alternative name to the subdirectory (2)? ([1]/2) ' % dir_name)
             if quest in ('1', '2', ''):
                 if quest in ('', '1'):
                     shutil.rmtree(dir_name)
@@ -325,16 +324,128 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
     stderr_.close()
 
 
+def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
+    '''
+    Function for saving the pdbs of the selected frames which satisfy the imposed criteria.
+    '''
+
+    dir_name = 'frames'
+    for i in range(len(atoms_list)):
+        dir_name = dir_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
+
+    if dir_name not in os.listdir():
+        os.mkdir(dir_name)
+        #print(dir_name)
+    elif dir_name in os.listdir():
+        while True:
+            quest = input('%s subdirectory aready exists. Do you want to overwrite its content (1) or give an alternative name to the subdirectory (2)? ([1]/2) ' % dir_name)
+            if quest in ('1', '2', ''):
+                if quest in ('', '1'):
+                    shutil.rmtree(dir_name)
+                    os.mkdir(dir_name)
+                    break
+                elif quest == '2':
+                    while True:
+                        dir_name = input('Type the new name of the subdirectory: ')
+                        quest2 = input('Is \'%s\' correct? ([y]/n) ' % dir_name)
+                        if quest2 in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
+                            break
+                        elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO'):
+                            continue
+                            
+                    if dir_name not in os.listdir():
+                        break
+                    elif dir_name in os.listdir():
+                        continue
+
+            elif quest not in ('1', '2', ''):
+                print('Choose 1 or 2.')
+                continue
+
+    stderr_ = open(os.devnull, 'w')
+    sys.stderr = stderr_
+
+    while True:
+        try :            
+            frame_n = str(input('Which frame do you want to save as pdb? (type \'list\' to show a list of frame to select) '))
+
+            if frame_n in ('list', 'LIST', 'List', 'lIST', 'LIst', 'liST', 'LISt', 'lisT'):
+                print_ = ''
+                for i in range(len(sel_bool)):
+                    if sel_bool[i] == True:
+                        if print_ == '':
+                            print_ = str(int(i+1))
+                        else :
+                            print_ = print_ + ', ' + str(int(i+1))
+
+                print(print_); del print_
+                continue
+            
+            elif frame_n == '':
+                print('Type the number.')
+                continue
+
+            else :
+                frame_n = int(frame_n) -1
+                if sel_bool[frame_n] == True:
+                    u.trajectory[frame_n]
+                    sel = u.select_atoms('all')
+                    sel.write('%s/frame_%s.pdb' % (dir_name, (frame_n+1)))
+                    print('Frame %s saved on %s.' % ((frame_n+1), dir_name))
+                    break
+
+                elif sel_bool[frame_n] == False:
+                    print('This frame does not satisfy the imposed criteria. Please, select another frame. (Type \'list\' to print the list of frames that satisfy the imposed criteria)')
+                    continue
+
+        except TypeError:
+            print('Type only the number.')
+
+    while True:
+        try :            
+            frame_n = str(input('Do you want to save another frame as pdb? (frame number/[n])'))
+
+            if frame_n in ('list', 'LIST', 'List', 'lIST', 'LIst', 'liST', 'LISt', 'lisT'):
+                print_ = ''
+                for i in range(len(sel_bool)):
+                    if sel_bool[i] == True:
+                        if print_ == '':
+                            print_ = str(int(i+1))
+                        else :
+                            print_ = print_ + ', ' + str(int(i+1))
+
+                print(print_); del print_
+                continue
+            
+            elif frame_n in ('', 'n', 'no', 'N', 'No', 'NO', 'nO'):
+                break
+
+            else :
+                frame_n = int(frame_n-1)
+                if sel_bool[frame_n] == True:
+                    u.trajectory[frame_n]
+                    sel = u.select_atoms('all')
+                    sel.write('%s/frame_%s.pdb' % (dir_name, (frame_n+1)))
+                    continue
+
+                elif sel_bool[frame_n] == False:
+                    print('This frame does not satisfy the imposed criteria. Please, select another frame. (Type \'list\' to print the list of frames that satisfy the imposed criteria)')
+                    continue
+
+        except TypeError:
+            print('Type only the number.')
+
+    stderr_.close()
 
 
-
-def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None, 'u_loaded' : False})):
+def frame_selector(u, argsdict):
 
     atoms_list = []; cut_off = []
     atoms_list_, cut_off_ = ask(argsdict)
 
     atoms_list.append(atoms_list_)
     cut_off.append(cut_off_)
+
     while True:
         quest = input("Do you want to add another distance criteria for selecting frames (y/[n])? ")
         if quest in ('n', 'no', 'N', 'No', 'No', 'nO', ''):
@@ -347,11 +458,6 @@ def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 
         else :
             print("Sorry, answer again, please.")
             continue
-
-    #print(atoms_list)
-    #print(atoms_list[0][0][0])
-    #print(atoms_list[1][0][0])
-    #print(cut_off)
 
     u, argsdict, sel_bool = bool_creator(u, argsdict, atoms_list, cut_off)
 
@@ -366,8 +472,28 @@ def frame_selector(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 
             print('Please, answer \'yes\' or \'no\'.')
             continue
 
-    pdb_saver_all(u, sel_bool, atoms_list, cut_off)
+    while True:
+        try :
+            quest = int(input('Do you want to save all the frames (1), the selected ones (2) or any of them (3)? '))
 
-    #print(sel_bool)
+            if quest == 1:
+                pdb_saver_all(u, sel_bool, atoms_list, cut_off)
+                break
+
+            elif quest == 2:
+                pdb_saver_some(u, sel_bool, atoms_list, cut_off)
+                break
+
+            elif quest == 3:
+                break
+            
+            else :
+                print('Type 1, 2 or 3')
+                continue
+
+        except TypeError:
+            print('Type 1, 2 or 3')
+            continue
+
     #del atoms_list; del cut_off; del atoms_list_; del cut_off_
     return u, argsdict
