@@ -13,8 +13,6 @@ import sys
 import os
 import numpy as np
 
-#u_loaded = False
-
 parser = argparse.ArgumentParser(description="pyLOXr - Python program for LOX reactivity")
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument(
@@ -70,7 +68,6 @@ parser.add_argument(
 
 
 argsdict=vars(parser.parse_args())
-#print('\n')
 if argsdict['trajectory'] != None and argsdict['frame'] == None:
     if len(argsdict['trajectory']) == 1:
         print('Topology or coordinates of the trajectory are not specified. Rerun the script specifying the files using the \'-t\' flag.')
@@ -87,7 +84,6 @@ elif argsdict['trajectory'] == None and argsdict['frame'] != None:
 
 argsdict['menu_type'] = menu_type
 del parser, group, menu_type
-#print(argsdict)
 
 if argsdict['trajectory'] != None:
     print('Files %s and %s are being loaded for the analysis.' % (argsdict['trajectory'][0], str(argsdict['trajectory'][1:])))
@@ -99,7 +95,6 @@ if argsdict['trajectory'] != None:
 if argsdict['frame'] != None:
     print('%s is being loaded as a single structure for the analysis.' % argsdict['frame'])
     argsdict['frame'] = os.path.abspath(argsdict['frame'])
-
 
 if argsdict['latex'] == True:
     print('LaTeX mode is on. The plots are going to be %s cm of width.' % argsdict['latex_width'])
@@ -126,10 +121,10 @@ u = None
 if argsdict['module'] == 1:
     print("Summariser module has been selected from the command line")
     u, argsdict = summariser.summarize(u, argsdict)
-    argsdict['module'] = None    
+    argsdict['module'] = None
 
 elif argsdict['module'] == 2:
-    print("Disatance plots module has been selected from the command line")
+    print("Distance plots module has been selected from the command line")
     u, argsdict = distance_plotter_bis.general_plotter(u, argsdict)
     argsdict['module'] = None
 
@@ -166,5 +161,4 @@ if argsdict['module'] == None:
                 continue
         elif argsdict['option'] in ('exit', 'Exit', 'EXIT', 'eXIT', '0', 0):
             exit(0)
-
             break

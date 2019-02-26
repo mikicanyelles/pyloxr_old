@@ -15,9 +15,6 @@
 # Coses a afegir
 
 - [X] AFEGIR QUE O NECESSITA -t O NECESSITA -f
-- [X] Comprovar si fa falta posar primer la topologia i despr�s la trajectoria o �s indiferent. -> s'han de posar en ordre: primer la top i despr�s les crds.
-- [X] Eliminar linia "print(u)" a m�dul RMSD
-- ~~[ ] Afegir barra de progr�s a RMSD~~ -> és una funció de MDAnalysis la que calcula el RMSD, no hi ha cap tipus de cicle.
-- [X] Corregir t�tols gr�fics dos RMSD
-
-
+- [X] Comprovar si fa falta posar primer la topologia i després la trajectoria o és indiferent. -> s'han de posar en ordre: primer la top i despres les crds.
+- ~~[ ] Afegir barra de progrés a RMSD~~ -> és una funció de MDAnalysis la que calcula el RMSD, no hi ha cap tipus de cicle.
+- [X] Corregir títols gràfics dos RMSD
