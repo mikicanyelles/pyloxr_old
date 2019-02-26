@@ -1,15 +1,15 @@
 from MDAnalysis import Universe
 import MDAnalysis.lib.distances as distanceslib
 from numpy import max, min, mean, array
-from sys import platform as sys_pf
-if sys_pf == 'darwin':
+#from sys import platform as sys_pf
+import sys
+if sys.platform == 'darwin':
     import matplotlib
     matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-import sys
 from progressbar import *
 
-argsdict=dict({'trajectory': ['3rde.prmtop', None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': 'plots', 'timer': False, 'menu_type' : None, 'u_loaded' : False})
+#argsdict=dict({'trajectory': ['3rde.prmtop', None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': 'plots', 'timer': False, 'menu_type' : None, 'u_loaded' : False})
 def general_plotter(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None, 'u_loaded' : False})):
     #if argsdict['u_loaded'] == False:
     #    from modules import loader
@@ -121,7 +121,7 @@ def general_plotter(u, argsdict=dict({'trajectory': [None, None], 'frame': None,
         else :
             quest = str(input("Are all numbers correct ([y]/n)?"))
 
-        if quest in ('n', 'no', 'N', 'No', 'No', 'nO'):
+        if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
             while True:
                 try :
                     prot_atoms_input = input("Input the number of the selected atoms for measuring distances (separated by a space). ")
@@ -184,7 +184,7 @@ def general_plotter(u, argsdict=dict({'trajectory': [None, None], 'frame': None,
                     continue
             continue
 
-        elif quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
+        elif quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
             break
         else :
             print("Sorry, answer again, please.")

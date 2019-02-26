@@ -157,9 +157,9 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
                 continue     
             elif exists != False:
                 quest = input('Are the selected residues correct ([y]/n)? ')
-                if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
+                if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
                     break
-                if quest in ('n', 'no', 'N', 'No', 'No', 'nO'):
+                if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
                     while True:
                         try :
                             index = (input('Type the number of the residue corresponding to the substrate or to the desired residue (for more than one residue specify the numbers separated by an space). '))
@@ -300,9 +300,9 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
                 continue     
             elif exists != False:
                 quest = input('Are the selected residues correct ([y]/n)? ')
-                if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
+                if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
                     break
-                if quest in ('n', 'no', 'N', 'No', 'No', 'nO'):
+                if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
                     while True:
                         try :
                             index = (input('Type the number of the residue corresponding to the substrate or to the desired residue (for more than one residue specify the numbers separated by an space). '))

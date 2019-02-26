@@ -214,22 +214,22 @@ def txt_saver(sel_bool, atoms_list):
         txt_ext_name = txt_ext_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
 
         if txt_ext_name in os.listdir():
-        while True:
-            quest = input("A previous extended summary of the frame selection exists. Do you want to overwrite it (1) or to give a new name (2)? ([1]/2) ")
-            if quest == '1' or quest == '':
-                break
-            elif quest == '2':
-                while True:
-                    txt_ext_name = input('Type the new name for the extended summary file: ')
-                    quest2 = input('Is \'%s\' correct? ([y]/n) ' % txt_ext_name)
-                    if quest2 in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-                        break
-                    elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
-                        continue
-                break
-            else :
-                print('Type just \'1\' or \'2\'.')
-                continue
+            while True:
+                quest = input("A previous extended summary of the frame selection exists. Do you want to overwrite it (1) or to give a new name (2)? ([1]/2) ")
+                if quest == '1' or quest == '':
+                    break
+                elif quest == '2':
+                    while True:
+                        txt_ext_name = input('Type the new name for the extended summary file: ')
+                        quest2 = input('Is \'%s\' correct? ([y]/n) ' % txt_ext_name)
+                        if quest2 in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+                            break
+                        elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
+                            continue
+                    break
+                else :
+                    print('Type just \'1\' or \'2\'.')
+                    continue
 
     print('Extended summary file is being saved as \'%s\'.' % txt_ext_name)
 
@@ -282,7 +282,7 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
                         quest2 = input('Is \'%s\' correct? ([y]/n) ' % dir_name)
                         if quest2 in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
                             break
-                        elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO', '1'):
+                        elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
                             continue
 
                     if dir_name not in os.listdir():
@@ -441,7 +441,7 @@ def frame_selector(u, argsdict):
 
     while True:
         quest = input("Do you want to add another distance criteria for selecting frames (y/[n])? ")
-        if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '', '0'):
+        if quest in ('', 'n', 'no', 'N', 'No', 'No', 'nO', '0'):
             break
         elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
             atoms_list_, cut_off_ = ask(argsdict)

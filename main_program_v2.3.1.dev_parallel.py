@@ -93,8 +93,8 @@ def summarize():
 
 # # Dynamics analysis
 
-# ### For 1 carbon
 
+# ### For 1 carbon
 def group1():
     global u
     global traj
@@ -543,10 +543,6 @@ def group1():
 
 
 # ### For 2 carbons
-
-# In[5]:
-
-
 def group2():
     global u
     global traj
@@ -1069,13 +1065,10 @@ def group2():
 
     topology = topology[3:]
 
+
 #####################################################################
 
 # ### For 3 carbons
-
-# In[6]:
-
-
 def group3():
     global u
     global traj
@@ -1718,10 +1711,6 @@ def group3():
 
 
 # # RMSd
-
-# In[7]:
-
-
 def rmsd_func():
     global u
     global traj
@@ -2072,19 +2061,13 @@ def rmsd_func():
     if time_counter == 1:
         time_fin = timer.time()
         print("I spent " + str(round((time_fin-time_in)/60,1)) + " min")
-#rmsd_func()
 #####################################################################
 
 
 # # Frames selection
-
-# In[8]:
-
-
 def frame_sel():
     global u
     global traj
-
 
     ### Ask for atom numbers
     while True:
@@ -2522,10 +2505,6 @@ def frame_sel():
 
 
 # # QM/MM model as pdb creation
-
-# In[19]:
-
-
 def model_qmmm():
     exists = []
     del exists[:]

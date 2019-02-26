@@ -16,7 +16,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
             except ValueError :
                 print('Type only 1 or 2.')
                 continue
-    def menu_1():
+    def trajectory():
         print("******************************************************************************************")
         print("Here you have a list with the modules you can choose:")
         print("\t1. Summary of the system and the MD trajectory.")
@@ -29,7 +29,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
         print("\t*. Options")
         print("\t*. Manual")
         print("******************************************************************************************")
-    def menu_2():
+    def frame():
         print("\n******************************************************************************************")
         print("\nHere you have a list with the modules you can choose:")
         #print("\nYou are in the 'nodynamics' mode. You can just do the following tasks.")
@@ -74,9 +74,9 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
 
     if argsdict['menu_type'] != None:
         if argsdict['menu_type'] == 1:
-            menu_1()
+            trajectory()
         elif argsdict['menu_type'] == 2:
-            menu_2()
+            frame()
 
         while True :
             option = input('Type the number of the module, the flag of the option, \'menu\' to reprint de menu, \'options\' to show the options menu or \'exit\'. ')
@@ -85,9 +85,9 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
 
             elif option == 'menu':
                 if argsdict['menu_type'] == 1:
-                    menu_1()
+                    trajectory()
                 elif argsdict['menu_type'] == 2:
-                    menu_2()
+                    frameº()
 
             elif option in ('-c', '--csv', '-l', '--latex', '-p', '--parallel', '-tm', '--timer') or (option.find('-lw') == 0 or option.find('--latex-width') == 0 or option.find('-s') == 0 or option.find('--subdir') == 0):
                 if option in ('-c', '--csv'):
