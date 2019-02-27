@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-''' 
+'''
 Description
 Using [MDAnalysis](https://www.mdanalysis.org), this program lets the user analize a given dynamics in AMBER. It is able to obtaing plots of distances, plots of RMSd, the number of frames with a certain distance under a given cut-off...
 '''
@@ -15,7 +15,6 @@ Using [MDAnalysis](https://www.mdanalysis.org), this program lets the user anali
 #  - [X] Add LaTeX mode to rmsd.
 #  - [ ] Add two distances criteria for selecting frames.
 #  - [ ] Fix 'serif' family font or hide sterror in LaTeX mode.
-#  - [ ] Buscar si 'setted' és correcte o bé és 'set'.
 ######
 
 
@@ -72,14 +71,14 @@ def summarize():
         time_in = timer.time()
 
     ### Check if universe is loaded and load it if it's not
-    if u != 0: 
+    if u != 0:
         print("Files were previously loaded, this will be faster!")
     else :
         print("Let's load the files!")
         u = mda.Universe(topology, dinamica)
         traj = u.trajectory
         print("Topology and dynamics loaded!")
-        
+
     txt = open("MD_summary.txt", 'w+')
     txt.write("The system has %s atoms, %s residues and %s segments.\n" % (len(u.atoms), len(u.residues), len(u.segments)))
     txt.write("The dynamics starts at %s ns, ends at %s ns, lasts a total of %s ns, has %s frames and a timestep of %s.\n" % (round(traj[0].time/1000,1), traj[-1].time/1000, traj[-1].time/1000-round(traj[0].time/1000,1), len(traj), ((traj[-1].time/1000-round(traj[0].time/1000,1))/(traj[-1].frame-traj[0].frame +1))))
@@ -87,7 +86,7 @@ def summarize():
     txt.write("\tEdges length: (%s, %s, %s).\n" % (u.dimensions[0],u.dimensions[1],u.dimensions[2]))
     txt.write("\tAngles: (%s, %s, %s).\n" % (u.dimensions[3],u.dimensions[4],u.dimensions[5]))
     txt.close()
-    
+
     print("Summary saved!")
 
 
@@ -136,21 +135,21 @@ def group1():
             break
         else :
             print("Sorry, I didn't understand you. Answer again, please.")
-            continue   
-                
+            continue
+
     if latex == True:
         width_plots = float(input('Which is the desired width for LaTeX plots?'))*0.39370079
 
     ### Ask for atom numbers
     while True:
         try :
-            o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784                
+            o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784
         except ValueError:
             print("Enter the number again.")
             continue
         else :
             break
-            
+
     while True:
         try :
             c9  = int(input("\nNumber of one of the carbons: ")) #-1 #8807
@@ -175,19 +174,19 @@ def group1():
             continue
         else :
             break
-    
-    
+
+
     ### Ask if atom numbers are correct
     while True:
         u_top = mda.Universe(topology)
-        ### Print selected atoms (number, name, tupe, resname an resid) and save names 
+        ### Print selected atoms (number, name, tupe, resname an resid) and save names
         print("\nYou have selected those atoms:\n")
-    
+
         a = str(u_top.select_atoms("bynum %s" % o_prot))
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-    
+
         a = str(u_top.select_atoms("bynum %s" % c9))
         locA = a.find('[<') +2
         locB = a.find(' and')
@@ -200,12 +199,12 @@ def group1():
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-    
+
         a = str(list(u_top.select_atoms("bynum %s" % o_prot)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_o_prot = str(a[locA:locB])
-    
+
         a = str(list(u_top.select_atoms("bynum %s" % c9)))
         locA = a.find(': ') +2
         locB = a.find(' of')
@@ -216,13 +215,13 @@ def group1():
         if quest in ('n', 'no', 'N', 'No', 'No', 'nO'):
             while True:
                 try :
-                    o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784                
+                    o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784
                 except ValueError:
                     print("Enter the number again.")
                     continue
                 else :
                     break
-                    
+
             while True:
                 try :
                     c9  = int(input("\nNumber of one of the carbons: ")) #-1 #8807
@@ -253,14 +252,14 @@ def group1():
         else :
             print("Sorry, answer again, please.")
             continue
-    
+
     ### Time counter
     if time_counter == 1:
         time_in = timer.time()
-    
+
     ### Check if universe is loaded and load it if it's not
 
-    if u != 0: 
+    if u != 0:
         print("Files were previously loaded, this will be faster!")
     else :
         print("Let's load the files!")
@@ -268,9 +267,9 @@ def group1():
         traj = u.trajectory
         print("Topology and dynamics loaded!")
 
-    
+
     ### Creation of the lists of distances and time
-    
+
     time = []
     dist_c_9  = []
     dist_ha_9 = []
@@ -284,16 +283,16 @@ def group1():
         dist_hb_9.append(distanceslib.calc_bonds(pos_o, pos_hb)[0])
         dist_c_9.append(distanceslib.calc_bonds(pos_o, pos_c)[0])
         time.append(int(traj.time)/1000)
-    
+
     dist_h_9  = []
     for i in range(0, len(traj)):
         if dist_ha_9[i] < dist_hb_9[i]:
             dist_h_9.append(dist_ha_9[i])
         elif dist_ha_9[i] > dist_hb_9[i]:
             dist_h_9.append(dist_hb_9[i])
-    
+
     ### Avg, min and max distances
-    
+
     avg_9_c = np.mean(dist_c_9)
     min_9_c = np.min(dist_c_9)
     max_9_c = np.max(dist_c_9)
@@ -305,34 +304,34 @@ def group1():
     avg_9_c_ar = np.array([avg_9_c for i in range(0, len(traj))])
     avg_9_h_ar = np.array([avg_9_h for i in range(0, len(traj))])
     print("Lists of distances created")
-    
-    
+
+
     ### Save summary of distances (avg, max and min)
-    
+
     txt = open('summary_of_distances_%s.txt' % t_c9, 'w+')
-    
+
     txt.write('Distances for %s: \n'% t_c9)
     txt.write('\tAverage distance %s - %s:       ' % (t_c9,t_o_prot) + str(round(avg_9_c,3)) + ' Å \n' )
     txt.write('\tMinimum distance %s - %s:       ' % (t_c9,t_o_prot) + str(round(min_9_c,3)) + ' Å \n')
     txt.write('\tMaximum distance %s - %s:       ' % (t_c9,t_o_prot) + str(round(max_9_c,3)) + ' Å \n')
     txt.write('\tMax-min for distances %s - %s:  ' % (t_c9,t_o_prot) + str(round(rng_9_c,3)) + ' Å \n\n')
-    
+
     txt.write('Distances for the nearest %s, even if it is the A or the B: \n' % t_h9)
     txt.write('\tAverage distance %s - %s:       ' % (t_h9,t_o_prot) + str(round(avg_9_h,3)) + ' Å \n')
     txt.write('\tMinimum distance %s - %s:       ' % (t_h9,t_o_prot) + str(round(min_9_h,3)) + ' Å \n')
     txt.write('\tMaximum distance %s - %s:       ' % (t_h9,t_o_prot) + str(round(max_9_h,3)) + ' Å \n')
     txt.write('\tMax-min for distances %s - %s:  ' % (t_h9,t_o_prot) + str(round(rng_9_h,3)) + ' Å \n\n\n')
-    
+
     txt.close()
-    
+
     print("Summary saved")
-    
+
     ### csv files
     csv_array = pd.DataFrame()
 
 
     ### Carbon distances plots
-    
+
     ##### Histogram
     plt.hist(dist_c_9, bins=20,range=(0,10), histtype='bar')
     #plt.hist(dist10,bins=40,range=(0,10))
@@ -340,7 +339,7 @@ def group1():
     if latex == True:
         plt.xlabel('Distance ($\AA$)')
     elif latex == False:
-        plt.xlabel('Distance (Å)')    
+        plt.xlabel('Distance (Å)')
     plt.ylabel('Number of frames')
     plt.xticks(range(0,11))
     plt.legend(['%s-%s' % (t_c9,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
@@ -350,9 +349,9 @@ def group1():
         plt.savefig('hist_%s.eps' %(t_c9), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     print('Histogram of carbons saved')
-    
+
     ##### plot w/o avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_c_9)#, label='C_9-OH')
@@ -369,7 +368,7 @@ def group1():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_c9,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, dist_c_9)#,  label='C_15-OH')
     #ax2.plot(time_ar, avg_9_c_ar, color='purple')
@@ -377,14 +376,14 @@ def group1():
     #ax2.plot(time_ar, avg_15_c_ar, color='orangered')
     #ax2.set_xticks(time)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of C-OH distances for %s" % (t_c9), y=1.15, loc='center')
     plt.savefig('plot_%s.png' % (t_c9), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
         plt.savefig('plot_%s.eps' % (t_c9), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     ##### plot w/ avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_c_9)#, label='C_9-OH')
@@ -401,7 +400,7 @@ def group1():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_c9,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     #ax2.plot(time, dist_c_, color='coral',  label='C_15-OH')
     ax2.plot(time, avg_9_c_ar, color='blue')
@@ -409,19 +408,19 @@ def group1():
     #ax2.plot(time, avg_15_c_ar, color='orangered')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of C-OH distances for %s vs. time and frames with average distances" % (t_c9), y=1.15, loc='center')
     plt.savefig('plot_%s_avg.png' % (t_c9), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
         plt.savefig('plot_%s_avg.eps' % (t_c9), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     print("Plots of carbons saved")
-    
-    
+
+
     ### Hydrogen plots
-    
+
     ##### Histogram
     plt.hist([dist_h_9], bins=20,range=(0,10), histtype='bar')
     #plt.hist(dist10,bins=40,range=(0,10))
@@ -439,9 +438,9 @@ def group1():
         plt.savefig('hist_%s.eps' %(t_h9), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     print('Histogram of hydrogen saved')
-    
+
     ##### Plot w/o average
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_h_9)#, label='H_9-OH')
@@ -458,7 +457,7 @@ def group1():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_h9,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, dist_h_9, label='H_15-OH')
     #ax2.plot(time_ar, avg_9_h_ar, color='purple')
@@ -466,14 +465,14 @@ def group1():
     #ax2.plot(time_ar, avg_15_h_ar, color='orangered')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of H-OH distances for %s vs. time and frames" % (t_h9), y=1.15, loc='center')
     plt.savefig('plot_%s.png' % (t_h9), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
         plt.savefig('plot_%s.eps' % (t_h9), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     ##### plot w/ avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_h_9)#, label='H_9-OH')
@@ -490,7 +489,7 @@ def group1():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_h9,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     #ax2.plot(time, dist_h_15, color='coral',  label='C_15-OH')
     ax2.plot(time, avg_9_h_ar, color='blue')
@@ -498,19 +497,19 @@ def group1():
     #ax2.plot(time, avg_15_h_ar, color='orangered')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of H-OH distances for %s vs. time and frames" % (t_h9), y=1.15, loc='center')
     plt.savefig('plot_%s_avg.png' % (t_h9), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
         plt.savefig('plot_%s_avg.eps' %(t_h9), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     print("Plots of carbons saved")
-    
-    
+
+
     ### Scattering plot
-    
+
     plt.scatter(dist_h_9,dist_c_9)
     #plt.scatter(dist_h_12,dist_c_12, color='green')
     #plt.scatter(dist_h_15,dist_c_15, color='coral')
@@ -527,12 +526,12 @@ def group1():
         plt.savefig('scatter_%s.eps' % (t_h9), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     print("Scatter of carbon vs hydrogen distances saved")
-    
-    if subplots in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'): 
+
+    if subplots in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
         os.chdir(dir_now)
-        
+
     ### Time counter ends
     if time_counter == 1:
         time_fin = timer.time()
@@ -592,17 +591,17 @@ def group2():
 
     if latex == True:
         width_plots = float(input('Which is the desired width for LaTeX plots?'))*0.39370079
-    
+
     ### Ask for atom numbers
     while True:
         try :
-            o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784                
+            o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784
         except ValueError:
             print("Enter the number again.")
             continue
         else :
             break
-            
+
     while True:
         try :
             c9  = int(input("\nNumber of one of the carbons: ")) #-1 #8807
@@ -627,7 +626,7 @@ def group2():
             continue
         else :
             break
-            
+
     while True:
         try :
             c12 = int(input("\nNumber of one of the carbons: ")) #-1 #8814
@@ -652,19 +651,19 @@ def group2():
             continue
         else :
             break
-    
-    
+
+
     ### Ask if atom numbers are correct
     while True:
         u_top = mda.Universe(topology)
-        ### Print selected atoms (number, name, tupe, resname an resid) and save names 
+        ### Print selected atoms (number, name, tupe, resname an resid) and save names
         print("\nYou have selected those atoms:\n")
-    
+
         a = str(u_top.select_atoms("bynum %s" % o_prot))
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-    
+
         a = str(u_top.select_atoms("bynum %s" % c9))
         locA = a.find('[<') +2
         locB = a.find(' and')
@@ -677,18 +676,18 @@ def group2():
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-    
+
         a = str(list(u_top.select_atoms("bynum %s" % o_prot)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_o_prot = str(a[locA:locB])
-    
+
         a = str(list(u_top.select_atoms("bynum %s" % c9)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_c9 = str(a[locA:locB])
         t_h9 = t_c9.replace('C','H')
-        
+
         a = str(u_top.select_atoms("bynum %s" % c12))
         locA = a.find('[<') +2
         locB = a.find(' and')
@@ -701,24 +700,24 @@ def group2():
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-        
+
         a = str(list(u_top.select_atoms("bynum %s" % c12)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_c12 = str(a[locA:locB])
         t_h12 = str(t_c12.replace('C','H'))
-        
+
         quest = str(input("Are all numbers correct ([y]/n)?"))
         if quest in ('n', 'no', 'N', 'No', 'No', 'nO'):
             while True:
                 try :
-                    o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784                
+                    o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784
                 except ValueError:
                     print("Enter the number again.")
                     continue
                 else :
                     break
-                    
+
             while True:
                 try :
                     c9  = int(input("\nNumber of one of the carbons: ")) #-1 #8807
@@ -743,7 +742,7 @@ def group2():
                     continue
                 else :
                     break
-                    
+
             while True:
                 try :
                     c12 = int(input("\nNumber of one of the carbons: ")) #-1 #8814
@@ -773,26 +772,26 @@ def group2():
         else :
             print("Sorry, answer again, please.")
             continue
-    
-            
+
+
     ### Time counter starts
     if time_counter == 1:
         time_in = timer.time()
-    
-    
+
+
     ### Check if universe is loaded and load it if it's not
     global u
     global traj
-    if u != 0: 
+    if u != 0:
         print("Files were previously loaded, this will be faster!")
     else :
         print("Let's load the files!")
         u = mda.Universe(topology, dinamica)
         traj = u.trajectory
         print("Topology and dynamics loaded!")
-    
+
     ### Creation of the lists of distances
-    
+
     ###### For carbon 9
     dist_c_9  = []
     dist_ha_9 = []
@@ -821,7 +820,7 @@ def group2():
     rng_9_h = np.max(dist_h_9) - np.min(dist_h_9)
     avg_9_c_ar = np.array([avg_9_c for i in range(0, len(traj))])#needed for plots, it is just an array of the same value (the average) repeated as many times as frames the dynamics has
     avg_9_h_ar = np.array([avg_9_h for i in range(0, len(traj))])
-    
+
     ##### For carbon 12
     time = []
     dist_c_12  = []
@@ -852,52 +851,52 @@ def group2():
     rng_12_h = np.max(dist_h_12) - np.min(dist_h_12)
     avg_12_c_ar = np.array([avg_12_c for i in range(0, len(traj))])
     avg_12_h_ar = np.array([avg_12_h for i in range(0, len(traj))])
-    
+
     print("Lists of distances created")
-    
-    
+
+
     ### Summary of distances
-    
+
     txt = open('summary_of_distances_%s_%s.txt' % (t_c9, t_c12), 'w+')
-    
+
     txt.write('Distances for %s: \n'% t_c9)
     txt.write('\tAverage distance %s - %s:       ' % (t_c9,t_o_prot) + str(round(avg_9_c,3)) + ' Å \n' )
     txt.write('\tMinimum distance %s - %s:       ' % (t_c9,t_o_prot) + str(round(min_9_c,3)) + ' Å \n')
     txt.write('\tMaximum distance %s - %s:       ' % (t_c9,t_o_prot) + str(round(max_9_c,3)) + ' Å \n')
     txt.write('\tMax-min for distances %s - %s:  ' % (t_c9,t_o_prot) + str(round(rng_9_c,3)) + ' Å \n\n')
-    
+
     txt.write('Distances for the nearest %s, even if it is the A or the B: \n' % t_h9)
     txt.write('\tAverage distance %s - %s:       ' % (t_h9,t_o_prot) + str(round(avg_9_h,3)) + ' Å \n')
     txt.write('\tMinimum distance %s - %s:       ' % (t_h9,t_o_prot) + str(round(min_9_h,3)) + ' Å \n')
     txt.write('\tMaximum distance %s - %s:       ' % (t_h9,t_o_prot) + str(round(max_9_h,3)) + ' Å \n')
     txt.write('\tMax-min for distances %s - %s:  ' % (t_h9,t_o_prot) + str(round(rng_9_h,3)) + ' Å \n\n\n')
-    
-    
+
+
     txt.write('Distances for %s: \n' % t_c12)
     txt.write('\tAverage distance %s - %s:      ' % (t_c12,t_o_prot) + str(round(avg_12_c,3)) + ' Å \n')
     txt.write('\tMinimum distance %s - %s:      ' % (t_c12,t_o_prot) + str(round(min_12_c,3)) + ' Å \n')
     txt.write('\tMaximum distance %s - %s:      ' % (t_c12,t_o_prot) + str(round(max_12_c,3)) + ' Å \n')
     txt.write('\tMax-min for distances %s - %s: ' % (t_c12,t_o_prot) + str(round(rng_12_c,3)) + ' Å \n\n')
-    
+
     txt.write('Distances for the nearest %s, even if it is the A or the B: \n'% t_h12 )
     txt.write('\tAverage distance %s - %s:      ' % (t_h12,t_o_prot) + str(round(avg_12_h,3)) + ' Å \n')
     txt.write('\tMinimum distance %s - %s:      ' % (t_h12,t_o_prot) + str(round(min_12_h,3)) + ' Å \n')
     txt.write('\tMaximum distance %s - %s:      ' % (t_h12,t_o_prot) + str(round(max_12_h,3)) + ' Å \n')
     txt.write('\tMax-min for distances %s - %s: ' % (t_h12,t_o_prot) + str(round(rng_12_h,3)) + ' Å \n\n\n')
-    
+
     txt.close()
-    
+
     print("Summary saved")
-    
-    
+
+
     ### Carbon plots
-    
+
     ##### Histogram
     plt.hist([dist_c_9, dist_c_12], bins=20,range=(0,10), histtype='bar', color = ['indigo', 'green'])
     if latex == True:
         plt.xlabel('Distance ($\AA$)')
     elif latex == False:
-        plt.xlabel('Distance (Å)')    
+        plt.xlabel('Distance (Å)')
     plt.ylabel('Number of frames')
     plt.xticks(range(0,11))
     plt.legend(['%s-%s' % (t_c9,t_o_prot), '%s-%s' % (t_c12,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
@@ -908,7 +907,7 @@ def group2():
     #plt.show()
     plt.close()
     print('Histogram of carbons saved')
-    
+
     ##### Distances w/o avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_c_9, color='indigo')#, label='C_9-OH')
@@ -921,7 +920,7 @@ def group2():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_c9,t_o_prot), '%s-%s' % (t_c12,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, dist_c_12, color='green')#,  label='C_15-OH')
     #ax2.plot(time_ar, avg_9_c_ar, color='purple')
@@ -929,14 +928,14 @@ def group2():
     #ax2.plot(time_ar, avg_15_c_ar, color='orangered')
     #ax2.set_xticks(time)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of C-OH distances for %s and %s vs. time and frames" % (t_c9,t_c12), y=1.15, loc='center')
     plt.savefig('plot_%s_%s.png' % (t_c9,t_c12), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
         plt.savefig('plot_%s_%s.eps' %(t_c9,t_c12), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     ### Distances w/ avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_c_9, color='indigo')#, label='C_9-OH')
@@ -949,13 +948,13 @@ def group2():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_c9,t_o_prot), '%s-%s' % (t_c12,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, avg_9_c_ar, color='purple')
     ax2.plot(time, avg_12_c_ar, color='lime')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of C-OH distances for %s and %s vs. time and frames with average distances" % (t_c9,t_c12), y=1.15, loc='center')
     plt.savefig('plot_%s_%s_avg.png' % (t_c9,t_c12), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
@@ -963,8 +962,8 @@ def group2():
     #plt.show()
     plt.close()
     print("Plots of carbons saved")
-    
-    
+
+
     ### Hydrogen plots
     ##### Histogram
     plt.hist([dist_h_9, dist_h_12], bins=20,range=(0,10), histtype='bar', color = ['indigo', 'green'])
@@ -981,9 +980,9 @@ def group2():
         plt.savefig('hist_%s_%s.eps' %(t_h9,t_h12), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     print('Histogram of hydrogen saved')
-    
+
     ##### Distance w/o avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_h_9, color='indigo')#, label='H_9-OH')
@@ -996,7 +995,7 @@ def group2():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_h9,t_o_prot), '%s-%s' % (t_h12,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, dist_h_12, color='green')#,  label='H_12-OH')
     #ax2.plot(time_ar, avg_9_h_ar, color='purple')
@@ -1004,14 +1003,14 @@ def group2():
     #ax2.plot(time_ar, avg_15_h_ar, color='orangered')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of H-OH distances for %s and %s vs. time and frames" % (t_h9,t_h12), y=1.15, loc='center')
     plt.savefig('plot_%s_%s.png' % (t_h9,t_h12), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
         plt.savefig('plot_%s_%s.eps' %(t_h9,t_h12), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     ##### Distance w/ avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_h_9, color='indigo')#, label='H_9-OH')
@@ -1023,25 +1022,25 @@ def group2():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_h9,t_o_prot), '%s-%s' % (t_h12,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(range(0,len(traj)), dist_h_12, color='green',  label='H_12-OH')
     ax2.plot(time, avg_9_h_ar, color='purple')
     ax2.plot(time, avg_12_h_ar, color='lime')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ps)')
-    
+
     plt.title("Plot of H-OH distances for %s and %s vs. time and frames with averages" % (t_h9,t_h12), y=1.15, loc='center')
     plt.savefig('plot_%s_%s_avg.png' % (t_h9,t_h12), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
         plt.savefig('plot_%s_%s_avg.eps' %(t_h9,t_h12), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     print("Plots of carbons saved")
-    
+
     ##### Scatter
-    
+
     plt.scatter(dist_h_9,dist_c_9, color='indigo')
     plt.scatter(dist_h_12,dist_c_12, color='green')
     plt.legend(['%s-%s' % (t_c9,t_h9), '%s-%s' % (t_c12,t_h12)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
@@ -1058,10 +1057,10 @@ def group2():
         plt.savefig('scatter_%s_%s.eps' %(t_h9,t_h12), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     print("Scatter of carbon vs hydrogen distances saved")
-    
-    if subplots in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'): 
+
+    if subplots in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
         os.chdir(dir_now)
     ### Time counter ends
     if time_counter == 1:
@@ -1117,7 +1116,7 @@ def group3():
             break
         else :
             print("Sorry, I didn't understand you. Answer again, please.")
-            continue 
+            continue
 
     if latex == True:
         width_plots = float(input('Which is the desired width for LaTeX plots?'))*0.39370079
@@ -1125,13 +1124,13 @@ def group3():
     ### Ask for atom numbers
     while True:
         try :
-            o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784                
+            o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784
         except ValueError:
             print("Enter the number again.")
             continue
         else :
             break
-            
+
     while True:
         try :
             c9  = int(input("\nNumber of one of the carbons: ")) #-1 #8807
@@ -1156,7 +1155,7 @@ def group3():
             continue
         else :
             break
-            
+
     while True:
         try :
             c12 = int(input("\nNumber of one of the carbons: ")) #-1 #8814
@@ -1181,7 +1180,7 @@ def group3():
             continue
         else :
             break
-    
+
     while True:
         try :
             c15 = int(input("\nNumber of one of the carbons: ")) #-1 #8814
@@ -1206,18 +1205,18 @@ def group3():
             continue
         else :
             break
-    
+
     ### Ask if the numbers are correct
     while True:
         u_top = mda.Universe(topology)
-        ### Print selected atoms (number, name, tupe, resname an resid) and save names 
+        ### Print selected atoms (number, name, tupe, resname an resid) and save names
         print("\nYou have selected those atoms:\n")
-    
+
         a = str(u_top.select_atoms("bynum %s" % o_prot))
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-    
+
         a = str(u_top.select_atoms("bynum %s" % c9))
         locA = a.find('[<') +2
         locB = a.find(' and')
@@ -1230,18 +1229,18 @@ def group3():
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-    
+
         a = str(list(u_top.select_atoms("bynum %s" % o_prot)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_o_prot = str(a[locA:locB])
-    
+
         a = str(list(u_top.select_atoms("bynum %s" % c9)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_c9 = str(a[locA:locB])
         t_h9 = t_c9.replace('C','H')
-        
+
         a = str(u_top.select_atoms("bynum %s" % c12))
         locA = a.find('[<') +2
         locB = a.find(' and')
@@ -1254,13 +1253,13 @@ def group3():
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-        
+
         a = str(list(u_top.select_atoms("bynum %s" % c12)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_c12 = str(a[locA:locB])
         t_h12 = str(t_c12.replace('C','H'))
-        
+
         a = str(u_top.select_atoms("bynum %s" % c15))
         locA = a.find('[<') +2
         locB = a.find(' and')
@@ -1273,24 +1272,24 @@ def group3():
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-        
+
         a = str(list(u_top.select_atoms("bynum %s" % c15)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_c15 = str(a[locA:locB])
         t_h15 = str(t_c15.replace('C','H'))
-        
+
         quest = str(input("Are all numbers correct ([y]/n)?"))
         if quest in ('n', 'no', 'N', 'No', 'No', 'nO'):
             while True:
                 try :
-                    o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784                
+                    o_prot  = int(input("Number of the atom which belongs to the protein: ")) #-1 #8784
                 except ValueError:
                     print("Enter the number again.")
                     continue
                 else :
                     break
-                    
+
             while True:
                 try :
                     c9  = int(input("\nNumber of one of the carbons: ")) #-1 #8807
@@ -1315,7 +1314,7 @@ def group3():
                     continue
                 else :
                     break
-                    
+
             while True:
                 try :
                     c12 = int(input("\nNumber of one of the carbons: ")) #-1 #8814
@@ -1340,7 +1339,7 @@ def group3():
                     continue
                 else :
                     break
-    
+
             while True:
                 try :
                     c15 = int(input("\nNumber of one of the carbons: ")) #-1 #8814
@@ -1371,22 +1370,22 @@ def group3():
         else :
             print("Sorry, answer again, please.")
             continue
-            
+
     ### Time counter starts
     if time_counter == 1:
         time_in = timer.time()
-    
+
     ### Load universe if it's not loaded
     global u
     global traj
-    if u != 0: 
+    if u != 0:
         print("Files were previously loaded, this will be faster!")
     else :
         print("Let's load the files!")
         u = mda.Universe(topology, dinamica)
         traj = u.trajectory
         print("Topology and dynamics loaded!")
-        
+
     ### Creation of the lists of distances
     ##### C9
     dist_c_9  = []
@@ -1416,7 +1415,7 @@ def group3():
     rng_9_h = np.max(dist_h_9) - np.min(dist_h_9)
     avg_9_c_ar = np.array([avg_9_c for i in range(0, len(traj))])
     avg_9_h_ar = np.array([avg_9_h for i in range(0, len(traj))])
-    
+
     ##### C12
     time = []
     dist_c_12  = []
@@ -1447,7 +1446,7 @@ def group3():
     rng_12_h = np.max(dist_h_12) - np.min(dist_h_12)
     avg_12_c_ar = np.array([avg_12_c for i in range(0, len(traj))])
     avg_12_h_ar = np.array([avg_12_h for i in range(0, len(traj))])
-    
+
     ##### C15
     dist_c_15  = []
     dist_ha_15 = []
@@ -1477,10 +1476,10 @@ def group3():
     avg_15_c_ar = np.array([avg_15_c for i in range(0, len(traj))])
     avg_15_h_ar = np.array([avg_15_h for i in range(0, len(traj))])
     print("Lists of distances created")
-    
-    
+
+
     ### Summary of distances
-    
+
     txt = open('summary_of_distances_%s_%s_%s.txt' % (t_c9, t_c12, t_c15), 'w+')
     txt.write('Distances for %s: \n'% t_c9)
     txt.write('\tAverage distance %s - %s:       ' % (t_c9,t_o_prot) + str(round(avg_9_c,3)) + ' Å \n' )
@@ -1514,10 +1513,10 @@ def group3():
     txt.write('\tMax-min for distances %s - %s: ' % (t_h15,t_o_prot) + str(round(rng_15_h,3)) + ' Å \n\n\n')
     txt.close()
     print("Summary saved")
-    
+
     ### Carbon distances
     ##### Histogram
-    
+
     plt.hist([dist_c_9, dist_c_12, dist_c_15], bins=20,range=(0,10), histtype='bar', color = ['indigo', 'green', 'coral'])
     #plt.hist(dist10,bins=40,range=(0,10))
     #plt.hist(dist13,bins=40,range=(0,10))
@@ -1535,7 +1534,7 @@ def group3():
     #plt.show()
     plt.close()
     print('Histogram of carbon saved')
-    
+
     ##### distances w/o avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_c_9, color='indigo')#, label='C_9-OH')
@@ -1552,7 +1551,7 @@ def group3():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_c9,t_o_prot), '%s-%s' % (t_c12,t_o_prot), '%s-%s' % (t_c15,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, dist_c_15, color='coral')#,  label='C_15-OH')
     #ax2.plot(time_ar, avg_9_c_ar, color='purple')
@@ -1560,14 +1559,14 @@ def group3():
     #ax2.plot(time_ar, avg_15_c_ar, color='orangered')
     #ax2.set_xticks(time)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of C-OH distances for %s, %s and %s vs. time and frames" % (t_c9,t_c12,t_c15), y=1.15, loc='center')
     plt.savefig('plot_%s_%s_%s.png' % (t_c9,t_c12,t_c15), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
-        plt.savefig('plot_%s_%s_%s.eps' % (t_c9,t_c12,t_c15), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')    
+        plt.savefig('plot_%s_%s_%s.eps' % (t_c9,t_c12,t_c15), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     ##### distances w/ avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_c_9, color='indigo')#, label='C_9-OH')
@@ -1584,7 +1583,7 @@ def group3():
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_c9,t_o_prot), '%s-%s' % (t_c12,t_o_prot), '%s-%s' % (t_c15,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, dist_c_15, color='coral',  label='C_15-OH')
     ax2.plot(time, avg_9_c_ar, color='purple')
@@ -1592,7 +1591,7 @@ def group3():
     ax2.plot(time, avg_15_c_ar, color='orangered')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of C-OH distances for %s, %s and %s vs. time and frames with average distances" % (t_c9,t_c12,t_c15), y=1.15, loc='center')
     plt.savefig('plot_%s_%s_%s_avg.png' % (t_c9,t_c12,t_c15), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
@@ -1600,8 +1599,8 @@ def group3():
     #plt.show()
     plt.close()
     print("Plots of carbons saved")
-    
-    
+
+
     ### Hydrogen plots
     ##### Histogram
     plt.hist([dist_h_9, dist_h_12,dist_h_15], bins=20,range=(0,10), histtype='bar', color = ['indigo', 'green','coral'])
@@ -1621,7 +1620,7 @@ def group3():
     #plt.show()
     plt.close()
     print('Histogram of hydrogen saved')
-    
+
     ##### Distances w/o avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_h_9, color='indigo')#, label='H_9-OH')
@@ -1634,11 +1633,11 @@ def group3():
     if latex == True:
         ax1.set_ylabel('Distance ($\AA$)')
     elif latex == False:
-        ax1.set_ylabel('Distance (Å)')    
+        ax1.set_ylabel('Distance (Å)')
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_h9,t_o_prot), '%s-%s' % (t_h12,t_o_prot), '%s-%s' % (t_h15,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, dist_h_15, color='coral',  label='H_15-OH')
     #ax2.plot(time_ar, avg_9_h_ar, color='purple')
@@ -1646,14 +1645,14 @@ def group3():
     #ax2.plot(time_ar, avg_15_h_ar, color='orangered')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of H-OH distances for %s, %s and %s vs. time and frames" % (t_h9,t_h12,t_h15), y=1.15, loc='center')
     plt.savefig('plot_%s_%s_%s.png' % (t_h9,t_h12,t_h15), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
         plt.savefig('plot_%s_%s_%s.eps' % (t_h9,t_h12,t_h15), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
     #plt.show()
     plt.close()
-    
+
     ##### Distances w/ avg
     fig, ax1 = plt.subplots()
     ax1.plot(range(0,len(traj)), dist_h_9, color='indigo')#, label='H_9-OH')
@@ -1666,11 +1665,11 @@ def group3():
     if latex == True:
         ax1.set_ylabel('Distance ($\AA$)')
     elif latex == False:
-        ax1.set_ylabel('Distance (Å)')    
+        ax1.set_ylabel('Distance (Å)')
     ax1.set_xticks(range(0,len(traj) +1, round(len(traj)/10)))#, ['0','1k', '2k', '3k', '4k', '5k', '6k', '7k', '8k', '9k', '10k', '11k', '12k'])
     ax1.grid(True)
     ax1.legend(['%s-%s' % (t_h9,t_o_prot), '%s-%s' % (t_h12,t_o_prot), '%s-%s' % (t_h15,t_o_prot)], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-    
+
     ax2 = ax1.twiny()
     ax2.plot(time, dist_h_15, color='coral',  label='C_15-OH')
     ax2.plot(time, avg_9_h_ar, color='purple')
@@ -1678,7 +1677,7 @@ def group3():
     ax2.plot(time, avg_15_h_ar, color='orangered')
     #ax2.set_xticks(time_ar)
     ax2.set_xlabel('Time (ns)')
-    
+
     plt.title("Plot of H-OH distances for %s, %s and %s vs. time and frames with averages" % (t_h9,t_h12,t_h15), y=1.15, loc='center')
     plt.savefig('plot_%s_%s_%s_avg.png' % (t_h9,t_h12,t_h15), transparent=False, dpi=300, bbox_inches='tight')
     if latex == True:
@@ -1686,8 +1685,8 @@ def group3():
     #plt.show()
     plt.close()
     print("Plots of carbons saved")
-    
-    
+
+
     ### Scatter
     plt.scatter(dist_h_9,dist_c_9, color='indigo')
     plt.scatter(dist_h_12,dist_c_12, color='green')
@@ -1706,8 +1705,8 @@ def group3():
     #plt.show()
     plt.close()
     print("Scatter of carbon vs hydrogen distances saved")
-    
-    if subplots in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'): 
+
+    if subplots in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
         os.chdir(dir_now)
     ### Time counter ends
     if time_counter == 1:
@@ -1766,7 +1765,7 @@ def rmsd_func():
             break
         else :
             print("Sorry, I didn't understand you. Answer again, please.")
-            continue      
+            continue
 
     if latex == True:
         width_plots = float(input('Which is the desired width for LaTeX plots?'))*0.39370079
@@ -1788,7 +1787,7 @@ def rmsd_func():
     ### Plots of backbone
     if type_plot == 1:
         last_resid = int(input("Type the number of the last residue which belongs to the protein: "))
-        while True: 
+        while True:
             quest= input("Is '%s' correct ([y]/n)? " % last_resid)
             if quest in ('', 'yes', 'y', 'Y', 'YES', 'Yes', 'yES', 'yEs', 'YeS'):
                 break
@@ -1814,7 +1813,7 @@ def rmsd_func():
         ### Time counter starts
         if time_counter == 1:
             time_in = timer.time()
-        
+
         if rmsd_ref == 1:
             rmsd_ref_name = "first frame \nof the production"
             rmsd_ref_plot = 'first'
@@ -1842,7 +1841,7 @@ def rmsd_func():
             csv_bb = pd.read_csv('rmsd_avg_bb.csv')
 
         bb_array = np.array(csv_bb)
-        
+
         ## Plot of rmsd
         plt.plot(bb_array[:,0], bb_array[:,1])
         plt.xlabel("Frame")
@@ -1863,7 +1862,7 @@ def rmsd_func():
     ### Plots of substrate
     if type_plot == 2:
         subs_code = input("Type the 3-letters code of the substrate (you can find it in any pdb of the protein): ")
-        while True: 
+        while True:
             quest= input("Is '%s' correct ([y]/n)? " % subs_code)
             if quest in ('', 'yes', 'y', 'Y', 'YES', 'Yes', 'yES', 'yEs', 'YeS'):
                 break
@@ -1889,7 +1888,7 @@ def rmsd_func():
         ### Time counter starts
         if time_counter == 1:
             time_in = timer.time()
-        
+
         if rmsd_ref == 1:
             rmsd_ref_name = "first frame \nof the production"
             rmsd_ref_plot = 'first'
@@ -1917,7 +1916,7 @@ def rmsd_func():
             csv_subs = pd.read_csv('rmsd_avg_subs.csv')
 
         subs_array = np.array(csv_subs)
-        
+
         ## Plot of rmsd
         plt.plot(subs_array[:,0], subs_array[:,1])
         plt.xlabel("Frame")
@@ -1939,7 +1938,7 @@ def rmsd_func():
     ### Plots of backbone and the substrate
     if type_plot == 3:
         last_resid = int(input("Type the number of the last residue which belongs to the protein: "))
-        while True: 
+        while True:
             quest= input("Is '%s' correct ([y]/n)? " % last_resid)
             if quest in ('', 'yes', 'y', 'Y', 'YES', 'Yes', 'yES', 'yEs', 'YeS'):
                 break
@@ -1963,7 +1962,7 @@ def rmsd_func():
                 continue
 
         subs_code = input("Type the 3-letters code of the substrate (you can find it in any pdb of the protein): ")
-        while True: 
+        while True:
             quest= input("Is '%s' correct ([y]/n)? " % subs_code)
             if quest in ('', 'yes', 'y', 'Y', 'YES', 'Yes', 'yES', 'yEs', 'YeS'):
                 break
@@ -1989,7 +1988,7 @@ def rmsd_func():
         ### Time counter starts
         if time_counter == 1:
             time_in = timer.time()
-        
+
         ### .dat for bb
         if rmsd_ref_bb == 1:
             rmsd_ref_name_bb = "first frame \nof the production"
@@ -2018,7 +2017,7 @@ def rmsd_func():
             csv_bb = pd.read_csv('rmsd_avg_bb.csv')
 
         bb_array = np.array(csv_bb)
-        
+
         ### .dat for subs
         if rmsd_ref_subs == 1:
             rmsd_ref_name_subs = "first frame \nof the production"
@@ -2047,7 +2046,7 @@ def rmsd_func():
             csv_subs = pd.read_csv('rmsd_avg_subs.csv')
 
         subs_array = np.array(csv_subs)
-      
+
         ## Plot of rmsd
         plt.plot(bb_array[:,0], bb_array[:,1], color='darkblue')
         plt.plot(subs_array[:,0], subs_array[:,1], color='red')
@@ -2064,11 +2063,11 @@ def rmsd_func():
             plt.savefig('plot_rmsd_bb_%s_subs_%s.eps' % (rmsd_ref_plot_bb,rmsd_ref_plot_subs), width=width_plots, transparent=False, dpi=300, bbox_inches='tight')
         plt.close()
 
-    if subplots in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'): 
+    if subplots in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs'):
         os.chdir(dir_now)
         dinamica = dinamica[3:]
         topology = topology[3:]
-    
+
     ### Time counter ends
     if time_counter == 1:
         time_fin = timer.time()
@@ -2090,13 +2089,13 @@ def frame_sel():
     ### Ask for atom numbers
     while True:
         try :
-            o_prot  = int(input("Number of the atom which belongs to the protein: "))                
+            o_prot  = int(input("Number of the atom which belongs to the protein: "))
         except ValueError:
             print("Enter the number again.")
             continue
         else :
             break
-            
+
     while True:
         try :
             c9  = int(input("\nNumber of one of the carbons: "))
@@ -2129,18 +2128,18 @@ def frame_sel():
             continue
         else :
             break
-    
+
     ### Ask if atom numbers are correct
     while True:
         u_top = mda.Universe(topology)
-        ### Print selected atoms (number, name, tupe, resname an resid) and save names 
+        ### Print selected atoms (number, name, tupe, resname an resid) and save names
         print("\nYou have selected those atoms:\n")
-    
+
         a = str(u_top.select_atoms("bynum %s" % o_prot))
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-    
+
         a = str(u_top.select_atoms("bynum %s" % c9))
         locA = a.find('[<') +2
         locB = a.find(' and')
@@ -2153,12 +2152,12 @@ def frame_sel():
         locA = a.find('[<') +2
         locB = a.find(' and')
         print("\t" + a[locA:locB] + "\n")
-    
+
         a = str(list(u_top.select_atoms("bynum %s" % o_prot)))
         locA = a.find(': ') +2
         locB = a.find(' of')
         t_o_prot = str(a[locA:locB])
-    
+
         a = str(list(u_top.select_atoms("bynum %s" % c9)))
         locA = a.find(': ') +2
         locB = a.find(' of')
@@ -2169,13 +2168,13 @@ def frame_sel():
         if quest in ('n', 'no', 'N', 'No', 'No', 'nO'):
             while True:
                 try :
-                    o_prot  = int(input("Number of the atom which belongs to the protein: "))                
+                    o_prot  = int(input("Number of the atom which belongs to the protein: "))
                 except ValueError:
                     print("Enter the number again.")
                     continue
                 else :
                     break
-                    
+
             while True:
                 try :
                     c9  = int(input("\nNumber of one of the carbons: "))
@@ -2214,8 +2213,8 @@ def frame_sel():
         else :
             print("Sorry, answer again, please.")
             continue
-    
-    
+
+
     while True:
         save = str(input("Do you want to save the pdbs (y/[n])?"))
         if save in ('', 'n', 'no', 'N', 'NO', 'No', 'nO'):
@@ -2227,7 +2226,7 @@ def frame_sel():
         else :
             print('I didn\'t understand you, could you repeat, please?')
             continue
-                  
+
     ### Time counter starts
     if time_counter == 1:
         time_in = timer.time()
@@ -2247,7 +2246,7 @@ def frame_sel():
             except FileExistsError :
                 print("The folder where the pdb's will be saved already exists.")
                 while True:
-                    quest = input("Do you want to change the folder's name (1), create a subdirectory (2) or overwrite it (3)?")           
+                    quest = input("Do you want to change the folder's name (1), create a subdirectory (2) or overwrite it (3)?")
                     if quest == '1':
                         dir_name = str(input("Type the folder's name: "))
                         os.mkdir(dir_name)
@@ -2268,22 +2267,22 @@ def frame_sel():
                         break
                     else :
                         print("I didn't understand you. Type 1 or 2, please.")
-                        continue       
+                        continue
                 break
         print("All selected frames will be saved in %s." % dir_name)
-        
-        
+
+
     ### Check if universe is loaded and load it if it's not
-    if u != 0: 
+    if u != 0:
         print("Files were previously loaded, this will be faster!")
     else :
         print("Let's load the files!")
         u = mda.Universe(topology, dinamica)
         traj = u.trajectory
         print("Topology and dynamics loaded!")
-    
+
     ### Creation of the lists of distances and time
-    
+
     #time = []
     dist_c_9  = []
     dist_ha_9 = []
@@ -2297,16 +2296,16 @@ def frame_sel():
         dist_hb_9.append(distanceslib.calc_bonds(pos_o, pos_hb)[0])
         dist_c_9.append(distanceslib.calc_bonds(pos_o, pos_c)[0])
         #time.append(int(traj.time)/1000)
-    
+
     dist_h_9  = []
     for i in range(0, len(traj)):
         if dist_ha_9[i] < dist_hb_9[i]:
             dist_h_9.append(dist_ha_9[i])
         elif dist_ha_9[i] > dist_hb_9[i]:
             dist_h_9.append(dist_hb_9[i])
-    
+
     ### Avg, min and max distances
-    
+
     avg_9_c = np.mean(dist_c_9)
     min_9_c = np.min(dist_c_9)
     max_9_c = np.max(dist_c_9)
@@ -2318,7 +2317,7 @@ def frame_sel():
     avg_9_c_ar = np.array([avg_9_c for i in range(0, len(traj))])
     avg_9_h_ar = np.array([avg_9_h for i in range(0, len(traj))])
     print("Lists of distances created")
-    
+
     ### Loop for changing to True if cut-off is satisfied
     i = 0
     dist_bool = []
@@ -2368,21 +2367,21 @@ def frame_sel():
         a = str(u.select_atoms("bynum %s" % h9b))
         locA = a.find('[<') +2
         locB = a.find(' and')
-        txt_ext.write("\t" + a[locA:locB] + "\n") 
+        txt_ext.write("\t" + a[locA:locB] + "\n")
         txt_ext.write("\nNumber of saved frames: " + str(dist_bool.count(1)) + "\n")
-    
+
         for i in range(0,len(traj)):
             if dist_bool[i] == 1:
                 txt_ext.write("Pdb saved for frame " + str(i+1) + "\n")
             elif dist_bool[i] == 0:
                 txt_ext.write("Pdb not saved for frame " + str(i+1) + "\n")
-                
+
         txt.close()
         txt_ext.close()
         print("Summaries saved")
-    
+
     if save == 1:
-        
+
         txt = open('summary_saved_frames_%s.txt' % (t_c9), 'w+')
         txt.write("\nYou have selected those atoms:\n")
         a = str(u.select_atoms("bynum %s" % o_prot))
@@ -2433,9 +2432,9 @@ def frame_sel():
         a = str(u.select_atoms("bynum %s" % h9b))
         locA = a.find('[<') +2
         locB = a.find(' and')
-        txt_ext.write("\t" + a[locA:locB] + "\n") 
+        txt_ext.write("\t" + a[locA:locB] + "\n")
         txt_ext.write("\nNumber of saved frames: " + str(dist_bool.count(1)) + "\n")
-        
+
         if all_quest == 1:
             print("Saving frames in pdb files. This will take a while...")
             f2 = open(os.devnull, 'w')
@@ -2449,10 +2448,10 @@ def frame_sel():
                 elif dist_bool[i] == 0:
                     txt_ext.write("Pdb not saved for frame " + str(i+1) + "\n")
             f2.close()
-    
+
             txt.close()
             txt_ext.close()
-              
+
             print("All frames have been saved in " + str(dir_name))
 
         elif all_quest == 0:
@@ -2475,7 +2474,7 @@ def frame_sel():
                     continue
                 except ValueError :
                     print('Type just the number, please.')
-                    continue                              
+                    continue
 
             f2 = open(os.devnull, 'w')
             sys.stderr = f2
@@ -2666,10 +2665,10 @@ def model_qmmm():
                 break
             except IndexError:
                 break
-        
+
         print("The QM/MM models have been saved.")
-                
-        
+
+
      # set act creation
 
 # In[265]:
@@ -2715,7 +2714,7 @@ def set_act():
         except ValueError:
             print("Type just the number, please.")
             continue
-    
+
     while True:
         try :
             radius = float(input("Which is the desired radius (in Å)? "))
@@ -2734,7 +2733,7 @@ def set_act():
             break
         except ValueError:
             print("Type just the number")
-    
+
     while True:
         quest = input("Is this atom correct ([y]/n)? ")
         if quest in ('', 'y', 'yes', 'YES', 'Yes', 'yES', 'yEs'):
@@ -2746,10 +2745,10 @@ def set_act():
                     break
                 except ValueError :
                     continue
-        break        
+        break
     os.chdir(dir_now)
     os.getcwd()
-    
+
     selection = u_pdb.select_atoms(str('around %s bynum %s' % (radius, carbon)))
     txt = open('set_%s_%s' % (radius, frame), 'w+')
     txt.write('set act { ')
@@ -2759,9 +2758,9 @@ def set_act():
         txt.write(str(selection[i])[locA:locB] + " ")
     txt.write("} ")
     txt.close()
-        
-    print("set_%s_%s file created!" % (radius, frame))    
-        
+
+    print("set_%s_%s file created!" % (radius, frame))
+
 
 
 # # Program
@@ -2801,7 +2800,7 @@ while True:
         break
     except IndexError:
         latex = False
-        break        
+        break
 
 
 
@@ -2835,7 +2834,7 @@ if mode == 'dyn':
                     break
                 elif c_num == '3':
                     group3()
-                    break    
+                    break
                 elif c_num in ('menu', 'Menu', 'MENU', 'mENU'):
                     break
                 else :
@@ -2880,7 +2879,7 @@ if mode == 'dyn':
         else :
             print('\nSorry, I didn\'t understand you, could you repeat, please? ')
             continue
-            
+
 if mode == 'nodyn':
     while True:
         menu_nodyn()
@@ -2909,4 +2908,3 @@ if mode == 'nodyn':
             print("\nTime counter turned on.")
             time_counter = 1
             continue
-

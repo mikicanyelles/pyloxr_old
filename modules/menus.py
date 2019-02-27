@@ -55,10 +55,10 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
             print('\t\t-p,  --parallel\t\t->\tActivated')
         elif argsdict['parallel'] == False:
             print('\t\t-p,  --parallel\t\t->\tDeactivated')
-        if argsdict['timer'] == True:
-            print('\t\t-tm, --timer\t\t->\tActivated')
-        if argsdict['timer'] == False:
-            print('\t\t-tm, --timer\t\t->\tDeactivated')
+        #if argsdict['timer'] == True:
+        #    print('\t\t-tm, --timer\t\t->\tActivated')
+        #if argsdict['timer'] == False:
+        #    print('\t\t-tm, --timer\t\t->\tDeactivated')
 
         print('\n\tValues: (select them and type the new value which will be stored)')
         if argsdict['latex_width'] == None:
@@ -89,7 +89,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
                 elif argsdict['menu_type'] == 2:
                     frameº()
 
-            elif option in ('-c', '--csv', '-l', '--latex', '-p', '--parallel', '-tm', '--timer') or (option.find('-lw') == 0 or option.find('--latex-width') == 0 or option.find('-s') == 0 or option.find('--subdir') == 0):
+            elif option in ('-c', '--csv', '-l', '--latex', '-p', '--parallel') or (option.find('-lw') == 0 or option.find('--latex-width') == 0 or option.find('-s') == 0 or option.find('--subdir') == 0):
                 if option in ('-c', '--csv'):
                     if argsdict['csv'] == True:
                         argsdict['csv'] = False
@@ -111,13 +111,13 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
                     elif argsdict['parallel'] == False:
                         argsdict['parallel'] = True
                         print('Parallel calculation of distances has been turned on.')
-                elif option in ('-tm', '--timer'):
-                    if argsdict['timer'] == True:
-                        argsdict['timer'] = False
-                        print('Timer has been turned off.')
-                    elif argsdict['timer'] == False:
-                        argsdict['timer'] = True
-                        print('Timer has been turned on.')
+                #elif option in ('-tm', '--timer'):
+                #    if argsdict['timer'] == True:
+                #        argsdict['timer'] = False
+                #        print('Timer has been turned off.')
+                #    elif argsdict['timer'] == False:
+                #        argsdict['timer'] = True
+                #        print('Timer has been turned on.')
                 else :
                     pass
 

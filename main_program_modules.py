@@ -5,6 +5,7 @@ from modules import distance_plotter
 from modules import frames_selector
 from modules import menus
 from modules import rmsd
+from modules import qmmm_modeller
 import modules
 import argparse
 #import multiprocessing
@@ -59,12 +60,12 @@ parser.add_argument(
     help='Specify a subdirectory (its name) for saving the generated plots. \'plots\' folder is set by default. If it is desired to save the plots in the current directory, type \'.\'',
     default='plots'
     )
-parser.add_argument(
-    '-tm', '--timer',
-    help='Enable the timer for the different modules of the program (for testing purposes).',
-    required=False,
-    action='store_true'
-    )
+#parser.add_argument(
+#    '-tm', '--timer',
+#    help='Enable the timer for the different modules of the program (for testing purposes).',
+#    required=False,
+#    action='store_true'
+#    )
 
 
 argsdict=vars(parser.parse_args())
@@ -105,8 +106,8 @@ if argsdict['csv'] == True:
 if argsdict['parallel'] == True:
     print('Parallel calculation for distances is enabled.')
 
-if argsdict['timer'] == True:
-    print('Timer is enabled.')
+#if argsdict['timer'] == True:
+#    print('Timer is enabled.')
 
 if argsdict['subdir'] != '.':
     if argsdict['subdir'] not in os.listdir():
@@ -136,6 +137,10 @@ elif argsdict['module'] == 4:
     u, argsdict = frames_selector.frame_selector(u, argsdict)
     argsdict['module'] = None
 
+elif argsdict['module'] == 5:
+    u, argsdict = qmmm_modeller.qmmm_modeller(u, argsdict)
+    argsdict['module'] = None
+
 else :
     pass
 
@@ -157,6 +162,10 @@ if argsdict['module'] == None:
                 continue
             elif argsdict['option'] == 4:
                 u, argsdict = frames_selector.frame_selector(u, argsdict)
+                argsdict['module'] = None
+                continue
+            elif argsdict['option'] == 5:
+                u, argsdict = qmmm_modeller.qmmm_modeller(u, argsdict)
                 argsdict['module'] = None
                 continue
         elif argsdict['option'] in ('exit', 'Exit', 'EXIT', 'eXIT', '0', 0):

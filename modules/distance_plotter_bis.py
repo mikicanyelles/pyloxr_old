@@ -330,7 +330,7 @@ def general_plotter(u, argsdict=dict({'trajectory': [None, None], 'frame': None,
                 csv.write(', '+str(round(distances[j][i],3)))
             csv.write('\n')
         csv.close(); del csv
-        
+
     #histograms
     bins_ = int((round(_max/10)*10)*2)
     if bins_ < 20:
