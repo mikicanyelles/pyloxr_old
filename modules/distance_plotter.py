@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from modules import loader
 
 
-def group1(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None})):
+def group1(u, argsdict):#=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None})):
 #    global u
     if argsdict['u_loaded'] == False:
         u, argsdict = loader.universe_loader_traj(argsdict)
@@ -63,7 +63,7 @@ def group1(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex':
 
     ### Ask if atom numbers are correct
     while True:
-        u_top = Universe(argsdict['trajectory'][0])
+        u_top = Universe(argsdict['parameters'])
         ### Print selected atoms (number, name, tupe, resname an resid) and save names
         print("\nYou have selected those atoms:\n")
 
@@ -434,7 +434,7 @@ def group2(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex':
 
     ### Ask if atom numbers are correct
     while True:
-        u_top = Universe(argsdict['trajectory'][0])
+        u_top = Universe(argsdict['parameters'])
         ### Print selected atoms (number, name, tupe, resname an resid) and save names
         print("\nYou have selected those atoms:\n")
 
@@ -930,7 +930,7 @@ def group3(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex':
 
     ### Ask if atom numbers are correct
     while True:
-        u_top = Universe(argsdict['trajectory'][0])
+        u_top = Universe(argsdict['parameters'])
         ### Print selected atoms (number, name, tupe, resname an resid) and save names
         print("\nYou have selected those atoms:\n")
 

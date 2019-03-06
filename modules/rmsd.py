@@ -17,7 +17,7 @@ def rmsd(u, argsdict):
         plt.rcParams['font.serif'] = 'Computer Modern Roman'
         plt.rcParams['font.sans-serif'] = 'Computer Modern Sans Serif'
 
-    ref_u = Universe(argsdict['trajectory'][0], argsdict['trajectory'][1:], ref_frame=0)
+    ref_u = Universe(argsdict['parameters'], argsdict['trajectory'][:], ref_frame=0)
 
     rmsddict = {'bb_ref' : None, 'mask' : None, 'subs_ref' : None}
     while True:
@@ -30,7 +30,7 @@ def rmsd(u, argsdict):
         except rmsddict['mask'] not in (1,2,3):
             print('Type only 1, 2 or 3.')
             continue
-        
+
     if rmsddict['mask'] == 1:
 
         while True:
@@ -43,7 +43,7 @@ def rmsd(u, argsdict):
             except rmsddict['bb_ref'] not in (1,2):
                 print('Type only 1 or 2.')
                 continue
-                
+
         if argsdict['u_loaded'] == False:
             u, argsdict = loader.universe_loader_traj(argsdict)
 
@@ -68,12 +68,12 @@ def rmsd(u, argsdict):
                 ax1.set_ylabel("RMSD (Å)")
             ax1.grid(True)
             ax1.legend(['Backbone RMSD\ncompared to the\nfirst frame of\nthe production'], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-            
-        
+
+
             ax2 = ax1.twiny()
             ax2.plot(time, array[2, :])
             ax2.set_xlabel('Time (ns)')
-        
+
             plt.title("RMSD of the backbone of the protein compared to the first frame of the production", y=1.15, loc='center')
             plt.savefig('%s/plot_rmsd_backbone_1st_frame.png' % argsdict['subdir'], transparent=False, dpi=300, bbox_inches='tight')
             if argsdict['latex'] == True:
@@ -104,7 +104,7 @@ def rmsd(u, argsdict):
             ax2 = ax1.twiny()
             ax2.plot(time, array[2, :])
             ax2.set_xlabel('Time (ns)')
-        
+
             plt.title("RMSD of the backbone of the protein compared to the average backbone", y=1.15, loc='center')
             plt.savefig('%s/plot_rmsd_backbone_avg.png' % argsdict['subdir'], transparent=False, dpi=300, bbox_inches='tight')
             if argsdict['latex'] == True:
@@ -122,22 +122,22 @@ def rmsd(u, argsdict):
             except ValueError:
                 print('Type only the number.')
                 continue
-    
-        u_top = Universe(argsdict['trajectory'][0])
+
+        u_top = Universe(argsdict['parameters'])
         quest = None
 
         while True:
             print('You have selected this/these residue/s:')
             i = 0; exists = True
             while i < len(index.split()):
-                try : 
+                try :
                     print(str(u_top.select_atoms('resid %s' % index).residues[i])[1:-1])
                     i+=1
                 except IndexError:
                     print('Residue number %s doesn\'t exist' % index.split()[i])
                     exists = False
                     break
-            
+
             if exists == False:
                 while True:
                     try :
@@ -149,7 +149,7 @@ def rmsd(u, argsdict):
                     except ValueError:
                         print('Type only the number.')
                         continue
-                continue     
+                continue
             elif exists != False:
                 quest = input('Are the selected residues correct ([y]/n)? ')
                 if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
@@ -207,12 +207,12 @@ def rmsd(u, argsdict):
                 ax1.set_ylabel("RMSD (Å)")
             ax1.grid(True)
             ax1.legend(['RMSD of residue(s) (%s)\ncompared to the\nfirst frame of\nthe production' % (str(mask_names[:])[1:-1])], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
-            
-        
+
+
             ax2 = ax1.twiny()
             ax2.plot(time, array[2, :])
             ax2.set_xlabel('Time (ns)')
-        
+
             plt.title("RMSD of the residue(s) (%s) of the protein compared to the first frame of the production" % (str(mask_names[:])[1:-1]), y=1.15, loc='center')
             plt.savefig('%s/plot_rmsd_residue_1st_frame.png' % argsdict['subdir'], transparent=False, dpi=300, bbox_inches='tight')
             if argsdict['latex'] == True:
@@ -243,7 +243,7 @@ def rmsd(u, argsdict):
             ax2 = ax1.twiny()
             ax2.plot(time, array[2, :])
             ax2.set_xlabel('Time (ns)')
-        
+
             plt.title("RMSD of the residue(s) (%s) of the protein compared to the average backbone" % (str(mask_names[:])[1:-1]), y=1.15, loc='center')
             plt.savefig('%s/plot_rsidue_backbone_avg.png' % argsdict['subdir'], transparent=False, dpi=300, bbox_inches='tight')
             if argsdict['latex'] == True:
@@ -251,7 +251,7 @@ def rmsd(u, argsdict):
             plt.close()
 
     if rmsddict['mask'] == 3:
-        
+
         while True:
             try :
                 index = (input('Type the number of the residue corresponding to the substrate or to the desired residue (for more than one residue specify the numbers separated by an space). '))
@@ -262,22 +262,22 @@ def rmsd(u, argsdict):
             except ValueError:
                 print('Type only the number.')
                 continue
-    
-        u_top = Universe(argsdict['trajectory'][0])
+
+        u_top = Universe(argsdict['parameters'])
         quest = None
 
         while True:
             print('You have selected this/these residue/s:')
             i = 0; exists = True
             while i < len(index.split()):
-                try : 
+                try :
                     print(u_top.select_atoms('resid %s' % index).residues[i])
                     i+=1
                 except IndexError:
                     print('Residue number %s doesn\'t exist' % index.split()[i])
                     exists = False
                     break
-            
+
             if exists == False:
                 while True:
                     try :
@@ -289,7 +289,7 @@ def rmsd(u, argsdict):
                     except ValueError:
                         print('Type only the number.')
                         continue
-                continue     
+                continue
             elif exists != False:
                 quest = input('Are the selected residues correct ([y]/n)? ')
                 if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
@@ -305,7 +305,7 @@ def rmsd(u, argsdict):
                         except ValueError:
                             print('Type only the number.')
                             continue
-                    continue 
+                    continue
 
         while True:
             try :
@@ -343,7 +343,7 @@ def rmsd(u, argsdict):
 
         mask_names = []
         for i in range(0, len(mask_subs.residues)):
-            mask_names.append(str(str(mask_subs.residues[i])[9:12]+'-'+str(mask_subs.residues[i])[14:-1]))    
+            mask_names.append(str(str(mask_subs.residues[i])[9:12]+'-'+str(mask_subs.residues[i])[14:-1]))
 
         if rmsddict['bb_ref'] == 1:
             # creation of the array which has the time, the frame and the RMSD value
@@ -358,8 +358,8 @@ def rmsd(u, argsdict):
 
             R = rms.RMSD(mask_bb, avg).run()
             array_bb = R.rmsd.T
-        
-        
+
+
         if rmsddict['subs_ref'] == 1:
             # creation of the array which has the time, the frame and the RMSD value
             R = rms.RMSD(mask_subs, ref_subs).run()
@@ -405,14 +405,10 @@ def rmsd(u, argsdict):
             plt.title("RMSD of the backbone compared to the average and RMSD of the residue(s) (%s)\nof the protein compared to the first frame of the production" % (str(mask_names[:])[1:-1]), y=1.15, loc='center')
         elif rmsddict['bb_ref'] == 2 and rmsddict['subs_ref'] == 2:
             plt.title("RMSD of the backbone RMSD of the residue(s) (%s)\n of the protein compared to the average structures" % (str(mask_names[:])[1:-1]), y=1.15, loc='center')
-    
+
         plt.savefig('%s/plot_residue_backbone.png' % argsdict['subdir'], transparent=False, dpi=300, bbox_inches='tight')
         if argsdict['latex'] == True:
             plt.savefig('%s/plot_residue_backbone.eps' % argsdict['subdir'], transparent=False, width=width_plots, dpi=300, bbox_inches='tight')
         plt.close()
-        
+
     return u, argsdict
-
-    
-        
-

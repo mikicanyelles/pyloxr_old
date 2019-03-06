@@ -10,21 +10,34 @@ import modules
 import argparse
 #import multiprocessing
 from sys import exit
-import sys
+#import sys
 import os
 import numpy as np
 
 parser = argparse.ArgumentParser(description="pyLOXr - Python program for LOX reactivity")
-group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument(
+#group = parser.add_mutually_exclusive_group(required=True)
+#group.add_argument(
+#    '-t', '--trajectory',
+#    help='Specify the topology and the coordinates of the trajectory in AMBER format (specify first the topology and then the trajectory/trajectories)',
+#    nargs='+',
+#    )
+#group.add_argument(
+#    '-f', '--frame',
+#    help='Specify a structure or a single frame from a trajectory in pdb format. Specifying only one structure limitates the available options.'
+#    )
+
+parser.add_argument(
+    '-p', '--parameters',
+    help='Specify the parameters-and-topology file for the system.',
+    required=True
+    )
+parser.add_argument(
     '-t', '--trajectory',
-    help='Specify the topology and the coordinates of the trajectory in AMBER format (specify first the topology and then the trajectory/trajectories)',
-    nargs='+',
+    help='Specify the coordinates file for the system. It can be a trajectory or a single frame (in pdb format).',
+    required=True,
+    nargs='+'
     )
-group.add_argument(
-    '-f', '--frame',
-    help='Specify a structure or a single frame from a trajectory in pdb format. Specifying only one structure limitates the available options.'
-    )
+
 parser.add_argument(
     '-c', '--csv',
     help='Save csv files of compluted distances. By default they are not saved.',
@@ -50,7 +63,7 @@ parser.add_argument(
     type=int
     )
 parser.add_argument(
-    '-p', '--parallel',
+    '-par', '--parallel',
     help='Enable parallel calculation of distances. Requires OpenMP.',
     required=False,
     action='store_true'
@@ -69,33 +82,45 @@ parser.add_argument(
 
 
 argsdict=vars(parser.parse_args())
-if argsdict['trajectory'] != None and argsdict['frame'] == None:
-    if len(argsdict['trajectory']) == 1:
-        print('Topology or coordinates of the trajectory are not specified. Rerun the script specifying the files using the \'-t\' flag.')
+#if argsdict['trajectory'] != None and argsdict['frame'] == None:
+#    if len(argsdict['trajectory']) == 1:
+#        print('Topology or coordinates of the trajectory are not specified. Rerun the script specifying the files using the \'-t\' flag.')
+#        exit(0)
+#    if argsdict['trajectory'][0] not in os.listdir()[:]:
+#        print('The topology file is not in the directory.')
+#    for i in range(1,len(argsdict['trajectory'])):
+#        if argsdict['trajectory'][i] not in os.listdir()[:]:
+#            print('The coordinates file \'%s\' is not in the directory.' % argsdict['trajectory'][i])
+#    menu_type = 1
+#elif argsdict['trajectory'] == None and argsdict['frame'] != None:
+#    menu_type = 2
+
+if argsdict['trajectory'] == argsdict['parameters']:
+    print('Parameters and trajectory file are the same. The options for one-frame system will be the only ones shown.')
+    argsdict['menu_type'] = 2
+else :
+    argsdict['menu_type'] = 1
+
+
+for i in range(len(argsdict['trajectory'])):
+    if argsdict['trajectory'][i] not in os.listdir():
+        print('One of the trajectory files does not exist in the current directory.')
         exit(0)
-    if argsdict['trajectory'][0] not in os.listdir()[:]:
-        print('The topology file is not in the directory.')
-    for i in range(1,len(argsdict['trajectory'])):
-        if argsdict['trajectory'][i] not in os.listdir()[:]:
-            print('The coordinates file \'%s\' is not in the directory.' % argsdict['trajectory'][i])
-    menu_type = 1
-elif argsdict['trajectory'] == None and argsdict['frame'] != None:
-    menu_type = 2
 
+if argsdict['parameters'] not in os.listdir():
+    print('Topology-and-parameters file does not exist in the current directory.')
+    exit(0)
 
-argsdict['menu_type'] = menu_type
-del parser, group, menu_type
+#argsdict['menu_type'] = menu_type
+del parser#, group, menu_type
 
-if argsdict['trajectory'] != None:
-    print('Files %s and %s are being loaded for the analysis.' % (argsdict['trajectory'][0], str(argsdict['trajectory'][1:])))
-    argsdict['trajectory'][0] = os.path.abspath(argsdict['trajectory'][0])
+if argsdict['trajectory'] != None and argsdict['parameters'] != None:
+    print('Files %s and %s are being loaded for the analysis.' % (argsdict['parameters'], str(argsdict['trajectory'][:])))
+    argsdict['parameters'] = os.path.abspath(argsdict['parameters'])
+    #argsdict['trajectory'] = os.path.abspath(argsdict['trajectory'])
 
-    for i in range(1, len(argsdict['trajectory'])):
+    for i in range(0, len(argsdict['trajectory'])):
         argsdict['trajectory'][i] = os.path.abspath(argsdict['trajectory'][i])
-
-if argsdict['frame'] != None:
-    print('%s is being loaded as a single structure for the analysis.' % argsdict['frame'])
-    argsdict['frame'] = os.path.abspath(argsdict['frame'])
 
 if argsdict['latex'] == True:
     print('LaTeX mode is on. The plots are going to be %s cm of width.' % argsdict['latex_width'])

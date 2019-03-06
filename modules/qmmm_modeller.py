@@ -24,7 +24,7 @@ def ask(u, argsdict):
                 frame = int(input('Of which frame do you want to obtain a model for QM/MM calculations? '))
                 print('The selected frame is the %s' % (frame))
                 from MDAnalysis import Universe
-                u_top = Universe(argsdict['trajectory'][0])
+                u_top = Universe(argsdict['parameters'])
                 break
 
             except ValueError:
@@ -155,12 +155,12 @@ def topology_modeller_traj(u, argsdict, frame, ligand, radius):
     del stderr_
 
 
-    if len(argsdict['trajectory'][0].split('/')) != 1:
-        name_prmtop = 'qmmm_models/cropped_%s_%s_%s.prmtop' % (str(argsdict['trajectory'][0].split('/')[-1])[:str(argsdict['trajectory'][0].split('/')[-1]).find('.prmtop')], frame, radius)
-        name_inpcrd = 'qmmm_models/cropped_%s_%s_%s.inpcrd' % (str(argsdict['trajectory'][0].split('/')[-1])[:str(argsdict['trajectory'][0].split('/')[-1]).find('.prmtop')], frame, radius)
-    elif len(argsdict['trajectory'][0].split('\\')) != 1:
-        name_prmtop = 'qmmm_models\\cropped_%s_%s_%s.prmtop' % (str(argsdict['trajectory'][0].split('/')[-1])[:str(argsdict['trajectory'][0].split('/')[-1]).find('.prmtop')], frame, radius)
-        name_inpcrd = 'qmmm_models\\cropped_%s_%s_%s.inpcrd' % (str(argsdict['trajectory'][0].split('/')[-1])[:str(argsdict['trajectory'][0].split('/')[-1]).find('.prmtop')], frame, radius)
+    if len(argsdict['parameters'].split('/')) != 1:
+        name_prmtop = 'qmmm_models/cropped_%s_%s_%s.prmtop' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], frame, radius)
+        name_inpcrd = 'qmmm_models/cropped_%s_%s_%s.inpcrd' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], frame, radius)
+    elif len(argsdict['parameters'].split('\\')) != 1:
+        name_prmtop = 'qmmm_models\\cropped_%s_%s_%s.prmtop' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], frame, radius)
+        name_inpcrd = 'qmmm_models\\cropped_%s_%s_%s.inpcrd' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], frame, radius)
 
     if name_prmtop[12:] in os.listdir('qmmm_models') or name_inpcrd[12:] in os.listdir('qmmm_models'):
         while True:
@@ -194,8 +194,8 @@ def topology_modeller_traj(u, argsdict, frame, ligand, radius):
                 continue
     else :
         pass
-    
-    topology = load_file(argsdict['trajectory'][0], xyz='.temporal.pdb')
+
+    topology = load_file(argsdict['parameters'], xyz='.temporal.pdb')
     topology.box = None
     topology.strip(':WAT&!:%s<@%s' % (ligand, radius))
     topology.strip(':Na+&!:%s<@%s' % (ligand, radius))
@@ -217,12 +217,27 @@ def topology_modeller_frame(u, argsdict, frame, ligand, radius):
     top_file = input('Specify the route to the topology: ')
 
 
-    if len(argsdict['frame'].split('/')) != 1:
-        name_prmtop = 'qmmm_models/cropped_%s_%s.prmtop' % (str(argsdict['frame'].split('/')[-1])[:str(argsdict['frame'].split('/')[-1]).find('.prmtop')], radius)
-        name_inpcrd = 'qmmm_models/cropped_%s_%s.inpcrd' % (str(argsdict['frame'].split('/')[-1])[:str(argsdict['frame'].split('/')[-1]).find('.prmtop')], radius)
-    elif len(argsdict['trajectory'][0].split('\\')) != 1:
-        name_prmtop = 'qmmm_models\\cropped_%s_%s.prmtop' % (str(argsdict['frame'].split('/')[-1])[:str(argsdict['frame'].split('/')[-1]).find('.prmtop')], radius)
-        name_inpcrd = 'qmmm_models\\cropped_%s_%s.inpcrd' % (str(argsdict['frame'].split('/')[-1])[:str(argsdict['frame'].split('/')[-1]).find('.prmtop')], radius)
+#    if len(argsdict['trajectory'][0].split('/')) != 1:
+#        name_prmtop = 'qmmm_models/cropped_%s_%s.prmtop' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
+#        name_inpcrd = 'qmmm_models/cropped_%s_%s.inpcrd' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
+#        name_prmtop = 'qmmm_models\\cropped_%s_%s.prmtop' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
+#        name_inpcrd = 'qmmm_models\\cropped_%s_%s.inpcrd' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
+
+    if len(top_file.split('/')) != 1:
+        name_prmtop = 'qmmm_models/cropped_%s_%s.prmtop' % (str(top_file.split('/')[-1])[:str(top_file.split('/')[-1]).find('.prmtop')], radius)
+        name_inpcrd = 'qmmm_models/cropped_%s_%s.inpcrd' % (str(top_file.split('/')[-1])[:str(top_file.split('/')[-1]).find('.prmtop')], radius)
+    elif len(top_file.split('\\')) != 1:
+        name_prmtop = 'qmmm_models\\cropped_%s_%s.prmtop' % (str(top_file.split('\\')[-1])[:str(top_file.split('\\')[-1]).find('.prmtop')], radius)
+        name_inpcrd = 'qmmm_models\\cropped_%s_%s.inpcrd' % (str(top_file.split('\\')[-1])[:str(top_file.split('\\')[-1]).find('.prmtop')], radius)
+
+    elif top_file.find('/') == -1:
+        name_prmtop = 'qmmm_models/cropped_%s_%s.prmtop' % (str(top_file)[:top_file.find('.prmtop')], radius)
+        name_inpcrd = 'qmmm_models/cropped_%s_%s.inpcrd' % (str(top_file)[:top_file.find('.prmtop')], radius)
+
+    elif top_file.find('\\') == -1:
+        name_prmtop = 'qmmm_models\\cropped_%s_%s.prmtop' % (str(top_file)[:top_file.find('.prmtop')], radius)
+        name_inpcrd = 'qmmm_models\\cropped_%s_%s.inpcrd' % (str(top_file)[:top_file.find('.prmtop')], radius)
+
 
     if name_prmtop[12:] in os.listdir('qmmm_models') or name_inpcrd[12:] in os.listdir('qmmm_models'):
         while True:
@@ -256,7 +271,7 @@ def topology_modeller_frame(u, argsdict, frame, ligand, radius):
                 continue
     else :
         pass
-    
+
     topology = load_file(top_file, xyz=argsdict['frame'])
     topology.box = None
     topology.strip(':WAT&:%s<@%s' % (ligand, radius))
@@ -272,7 +287,7 @@ def topology_modeller_frame(u, argsdict, frame, ligand, radius):
 
 
 def topology_modeller(u, argsdict, frame, ligand, radius):
-    
+
     while True:
         quest = input('Do you want to generate also the cropped topology and parameters and coordinates files? (y/n) ')
         if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
@@ -281,16 +296,16 @@ def topology_modeller(u, argsdict, frame, ligand, radius):
             break
 
         elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-            if argsdict['trajectory'] != None:
+            if argsdict['trajectory'] != argsdict['parameters']:
                 name_prmtop, name_inpcrd = topology_modeller_traj(u, argsdict, frame, ligand, radius)
                 break
-            elif argsdict['frame'] != None:
+            elif argsdict['trajectory'] == argsdict['parameters']:
                 name_prmtop, name_inpcrd = topology_modeller_frame(u, argsdict, frame, ligand, radius)
                 break
 
         else :
             print('Answer \'yes\' or \'no\'.')
-        
+
             continue
 
     return name_prmtop, name_inpcrd
@@ -302,7 +317,7 @@ def set_act(name_prmtop, name_inpcrd):
     u_set_act = Universe(name_prmtop, name_inpcrd)
 
     while True:
-        try : 
+        try :
             carbon = input("Type the number of the central carbon: ")
             sel_carbon = str(u_set_act.select_atoms("bynum %s" % carbon))
             locA = sel_carbon.find('[<') + 2
@@ -353,7 +368,7 @@ def set_act(name_prmtop, name_inpcrd):
         locB = str(selection[i]).find(': ')
         txt.write(str(selection[i])[locA:locB] + " ")
     txt.write("} ")
-    txt.close()   
+    txt.close()
 
 
 def qmmm_modeller(u, argsdict):
@@ -384,7 +399,7 @@ def qmmm_modeller(u, argsdict):
 
             elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
                 continue
-        
+
         elif argsdict['frame'] != None:
             break
 

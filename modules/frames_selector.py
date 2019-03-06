@@ -38,7 +38,7 @@ def ask(argsdict):
             continue
     atoms_list = [prot_atoms, subs_atoms]
 
-    u_top = Universe(argsdict['trajectory'][0])
+    u_top = Universe(argsdict['parameters'])
     quest = None
 
     while True:
@@ -176,12 +176,12 @@ def bool_creator(u, argsdict, atoms_list, cut_off):
         del bool_
     del sel_bool_
 
-    print("\nThe " + str((sel_bool.count(True)/len(sel_bool)) * 100) + '% of the frames satisfy the specified criteria.\n')
+    print("\nThe " + str(round((sel_bool.count(True)/len(sel_bool) * 100), 4)) + '% of the frames satisfy the specified criteria.\n')
 
-    print(atoms_sel)
-    for i in range(len(atoms_sel)):
-        for j in range(len(atoms_sel[i])):
-            print(atoms_sel[i][j])
+    #print(atoms_sel)
+    #for i in range(len(atoms_sel)):
+    #    for j in range(len(atoms_sel[i])):
+    #        print(atoms_sel[i][j])
 
     return u, argsdict, sel_bool
 
@@ -458,7 +458,7 @@ def frame_selector(u, argsdict):
     u, argsdict, sel_bool = bool_creator(u, argsdict, atoms_list, cut_off)
 
     while True:
-        quest = input('Do you want to save a summary of the selection results? ([y]/n) ')
+        quest = input('Do you want to save a summary of the selection results ([y]/n)? ')
         if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
             txt_saver(sel_bool, atoms_list, cut_off)
             break

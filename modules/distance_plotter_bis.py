@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from progressbar import ProgressBar, Percentage, Bar, ETA, Timer
 
 #argsdict=dict({'trajectory': ['3rde.prmtop', None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': 'plots', 'timer': False, 'menu_type' : None, 'u_loaded' : False})
-def general_plotter(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None, 'u_loaded' : False})):
+def general_plotter(u, argsdict):#=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None, 'u_loaded' : False})):
     #if argsdict['u_loaded'] == False:
     #    from modules import loader
     #    u, argsdict = loader.universe_loader_traj(argsdict)
@@ -84,7 +84,7 @@ def general_plotter(u, argsdict=dict({'trajectory': [None, None], 'frame': None,
             print('Some of the atom\'s numbers has not been correctly introduced.\n')
             continue
 
-    u_top = Universe(argsdict['trajectory'][0])
+    u_top = Universe(argsdict['parameters'])
     quest = None
 
     ### Check if atom numbers are correct

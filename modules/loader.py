@@ -14,7 +14,7 @@ def universe_loader_traj(argsdict):
         return True
     else :
         print("Let's load the trajectory!")
-        u = Universe(argsdict['trajectory'][0], argsdict['trajectory'][1:])
+        u = Universe(argsdict['parameters'], argsdict['trajectory'][:])
         argsdict['u_loaded'] = True
         print("Topology and trajectory(ies) loaded!")
         return u, argsdict
@@ -25,7 +25,7 @@ def universe_loader_frame(argsdict):
         return True
     else :
         print("Let's load the structure!")
-        u = Universe(argsdict['frame'])
+        u = Universe(argsdict['parameters'])
         argsdict['u_loaded'] = True
         print("Frame loaded!")
         return u, argsdict

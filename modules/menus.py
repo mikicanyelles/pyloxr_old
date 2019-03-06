@@ -1,13 +1,13 @@
 '''
 Module for loading the menus which reveal the available modules and options.
 '''
-import sys
+#import sys
 
 # # Menu
 
 # ### For dynamics files
 
-def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None})):
+def menu(argsdict):
     if argsdict['menu_type'] == None:
         while True:
             try :
@@ -38,7 +38,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
         print("If you want to do other jobs that require the topology and the trajectory, type 'exit' and rerun the script specifing those files.")
         #print("By now, modules regarding one frame are not available")
         print("\nHere you have a list with the options you can choose:")
-        print("\t5. QM/MM model from structure")
+        print("\t1. QM/MM model from structure")
         #print("\t2. Create the 'set act' file, where active atoms for ChemShell are specified")
         print("\n******************************************************************************************")
 
@@ -46,17 +46,17 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
         print('\nOptions:')
         print('\tSwitchers: (selecting them will (de)activate the option)')
         if argsdict['csv'] == True:
-            print('\t\t-c,  --csv\t\t->\tActivated')
+            print('\t\t-c,   --csv\t\t->\tActivated')
         elif argsdict['csv'] == False:
-            print('\t\t-c,  --csv\t\t->\tDeactivated')
+            print('\t\t-c,   --csv\t\t->\tDeactivated')
         if argsdict['latex'] == True:
-            print('\t\t-l,  --latex\t\t->\tActivated')
+            print('\t\t-l,   --latex\t\t->\tActivated')
         elif argsdict['latex'] == False:
-            print('\t\t-l,  --latex\t\t->\tDeactivated')
+            print('\t\t-l,   --latex\t\t->\tDeactivated')
         if argsdict['parallel'] == True:
-            print('\t\t-p,  --parallel\t\t->\tActivated')
+            print('\t\t-par, --parallel\t->\tActivated')
         elif argsdict['parallel'] == False:
-            print('\t\t-p,  --parallel\t\t->\tDeactivated')
+            print('\t\t-p, --parallel\t->\tDeactivated')
         #if argsdict['timer'] == True:
         #    print('\t\t-tm, --timer\t\t->\tActivated')
         #if argsdict['timer'] == False:
@@ -91,14 +91,14 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
                 elif argsdict['menu_type'] == 2:
                     frame()
 
-            elif option in ('-c', '--csv', '-l', '--latex', '-p', '--parallel') or (option.find('-lw') == 0 or option.find('--latex-width') == 0 or option.find('-s') == 0 or option.find('--subdir') == 0):
+            elif option in ('-c', '--csv', '-l', '--latex', '-par', '--parallel') or (option.find('-lw') == 0 or option.find('--latex-width') == 0 or option.find('-s') == 0 or option.find('--subdir') == 0):
                 if option in ('-c', '--csv'):
                     if argsdict['csv'] == True:
                         argsdict['csv'] = False
-                        print('csv files saving has been turned off.')
+                        print('csv-files saving has been turned off.')
                     elif argsdict['csv'] == False:
                         argsdict['csv'] = True
-                        print('csv files saving has been turned on.')
+                        print('csv-files saving has been turned on.')
 
                 elif option in ('-l', '--latex'):
                     if argsdict['latex'] == True:
@@ -108,7 +108,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
                         argsdict['latex'] = True
                         print('LaTeX processing has been turned on.')
 
-                elif option in ('-p', '--parallel'):
+                elif option in ('-par', '--parallel'):
                     if argsdict['parallel'] == True:
                         argsdict['parallel'] = False
                         print('Parallel calculation of distances has been turned off.')
@@ -191,15 +191,14 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
 
                 options_menu(argsdict)
 
-
             elif option in ('1','2','3','4','5','6'):
                 if argsdict['menu_type'] == 1:
                     argsdict['option'] = int(option)
                     return argsdict
                 #    break
                 elif argsdict['menu_type'] == 2:
-                    if option in ('1', '2'):
-                        argsdict['option'] = int(option)
+                    if option == '1':
+                        argsdict['option'] = 5#int(option)
                         return argsdict
                 #        break
                     else :
