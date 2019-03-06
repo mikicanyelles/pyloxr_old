@@ -1,8 +1,9 @@
 from MDAnalysis import Universe
 import MDAnalysis.lib.distances as distanceslib
 from numpy import min#, mean, array, max
-import sys; import os
-from progressbar import *
+import sys
+import os
+from progressbar import ProgressBar, Percentage, Bar, ETA, Timer
 import copy
 import shutil
 
@@ -185,8 +186,9 @@ def bool_creator(u, argsdict, atoms_list, cut_off):
     return u, argsdict, sel_bool
 
 
-def txt_saver(sel_bool, atoms_list):
+def txt_saver(sel_bool, atoms_list, cut_off):
 
+    txt_name = ''
     for i in range(len(atoms_list)):
         txt_name = txt_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
 
@@ -210,6 +212,7 @@ def txt_saver(sel_bool, atoms_list):
 
     print('Summary file is being saved as \'%s\'.' % txt_name)
 
+    txt_ext_name = ''
     for i in range(len(atoms_list)):
         txt_ext_name = txt_ext_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
 
@@ -457,7 +460,7 @@ def frame_selector(u, argsdict):
     while True:
         quest = input('Do you want to save a summary of the selection results? ([y]/n) ')
         if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-            txt_saver(sel_bool)
+            txt_saver(sel_bool, atoms_list, cut_off)
             break
         elif quest in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
             break

@@ -19,20 +19,18 @@ def universe_loader_traj(argsdict):
         print("Topology and trajectory(ies) loaded!")
         return u, argsdict
 
-def universe_loader_frame(u_loaded, frame):
-    global u; global traj#; global top; global dyn
-    if u_loaded == True:
+def universe_loader_frame(argsdict):
+    if argsdict['u_loaded'] == True:
         print("Frame was previously loaded, this will be faster!")
-        return u_loaded, frame
+        return True
     else :
-        print("Let's load the trajectory!")
-        u = Universe(frame)
-        u_loaded = True
+        print("Let's load the structure!")
+        u = Universe(argsdict['frame'])
+        argsdict['u_loaded'] = True
         print("Frame loaded!")
-        return u_loaded, frame
+        return u, argsdict
 
 def folders_subfolders(subdir):
-    dir_now = os.getcwd()
     while subdir != None:
         subdir_quest = input("Do you want to save the plots in '%s' ([y]/n)? " % subdir)
         if subdir_quest in ('n', 'no', 'N', 'No', 'No', 'nO'):

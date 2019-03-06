@@ -7,7 +7,7 @@ if sys.platform == 'darwin':
     import matplotlib
     matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from progressbar import *
+from progressbar import ProgressBar, Percentage, Bar, ETA, Timer
 
 #argsdict=dict({'trajectory': ['3rde.prmtop', None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': 'plots', 'timer': False, 'menu_type' : None, 'u_loaded' : False})
 def general_plotter(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None, 'u_loaded' : False})):

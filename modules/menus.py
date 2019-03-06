@@ -16,6 +16,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
             except ValueError :
                 print('Type only 1 or 2.')
                 continue
+
     def trajectory():
         print("******************************************************************************************")
         print("Here you have a list with the modules you can choose:")
@@ -23,20 +24,21 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
         print("\t2. Obtain distance (between atoms) plots.")
         print("\t3. Obtain the plot of RMSD of the backbone and/or the substrate or selected residues.")
         print("\t4. Select frames by H(subs)-protein distance.")
-        #print("\t5. QM/MM models from frames creation. (Frames have to be saved as pdb by this program (option 4))")
+        print("\t5. QM/MM models from trajectory")
         #print("\t6. Create the 'set act' file, where active atoms for ChemShell are specified")
         print("\n\t0. Exit")
         print("\t*. Options")
-        print("\t*. Manual")
+        #print("\t*. Manual")
         print("******************************************************************************************")
+
     def frame():
         print("\n******************************************************************************************")
         print("\nHere you have a list with the modules you can choose:")
         #print("\nYou are in the 'nodynamics' mode. You can just do the following tasks.")
         print("If you want to do other jobs that require the topology and the trajectory, type 'exit' and rerun the script specifing those files.")
-        print("By now, modules regarding one frame are not available")
-        #print("\nHere you have a list with the options you can choose:")
-        #print("\t1. QM/MM models from frames creation)")
+        #print("By now, modules regarding one frame are not available")
+        print("\nHere you have a list with the options you can choose:")
+        print("\t5. QM/MM model from structure")
         #print("\t2. Create the 'set act' file, where active atoms for ChemShell are specified")
         print("\n******************************************************************************************")
 
@@ -68,7 +70,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
         if argsdict['subdir'] == '.':
             print('\t\t-s,  --subdir SUBDIR\t\t\t->\tThe directory for plots is the current directory.')
         elif argsdict['subdir'] != '.':
-            print('\t\t-s,  --subdir SUBDIR\t\t\t->\tThe directory for plots is %s.' % argsdict['subdir'])
+            print('\t\t-s,  --subdir SUBDIR\t\t\t->\tThe directory for plots is \'%s\'.' % argsdict['subdir'])
 
         print("\n******************************************************************************************\n")
 
@@ -87,7 +89,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
                 if argsdict['menu_type'] == 1:
                     trajectory()
                 elif argsdict['menu_type'] == 2:
-                    frameº()
+                    frame()
 
             elif option in ('-c', '--csv', '-l', '--latex', '-p', '--parallel') or (option.find('-lw') == 0 or option.find('--latex-width') == 0 or option.find('-s') == 0 or option.find('--subdir') == 0):
                 if option in ('-c', '--csv'):
@@ -97,6 +99,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
                     elif argsdict['csv'] == False:
                         argsdict['csv'] = True
                         print('csv files saving has been turned on.')
+
                 elif option in ('-l', '--latex'):
                     if argsdict['latex'] == True:
                         argsdict['latex'] = False
@@ -104,6 +107,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
                     elif argsdict['latex'] == False:
                         argsdict['latex'] = True
                         print('LaTeX processing has been turned on.')
+
                 elif option in ('-p', '--parallel'):
                     if argsdict['parallel'] == True:
                         argsdict['parallel'] = False
@@ -111,13 +115,7 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
                     elif argsdict['parallel'] == False:
                         argsdict['parallel'] = True
                         print('Parallel calculation of distances has been turned on.')
-                #elif option in ('-tm', '--timer'):
-                #    if argsdict['timer'] == True:
-                #        argsdict['timer'] = False
-                #        print('Timer has been turned off.')
-                #    elif argsdict['timer'] == False:
-                #        argsdict['timer'] = True
-                #        print('Timer has been turned on.')
+
                 else :
                     pass
 
@@ -211,7 +209,6 @@ def menu(argsdict=dict({'trajectory': [None, None], 'frame': None, 'csv' : False
             elif option in ('exit', 'Exit', 'EXIT', 'eXIT', '0'):
                 argsdict['option'] = option
                 return argsdict
-                #break
 
             elif option == '':
                 print('Select some module or option or type \'exit\' to leave the program.')

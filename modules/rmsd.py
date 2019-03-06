@@ -7,7 +7,7 @@ from modules import loader
 
 
 
-def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': False, 'latex_width': None, 'parallel': False, 'subdir': '.', 'timer': False, 'menu_type' : None})):
+def rmsd(u, argsdict):
 
     width_plots = None
     if argsdict['latex'] == True:
@@ -33,7 +33,6 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
         
     if rmsddict['mask'] == 1:
 
-
         while True:
             try :
                 rmsddict['bb_ref'] = int(input('Do you want to set the first frame as the reference (1) or the average structure (2)? '))
@@ -44,11 +43,7 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
             except rmsddict['bb_ref'] not in (1,2):
                 print('Type only 1 or 2.')
                 continue
-
-        if argsdict['timer'] == True:
-            import time as timer
-            time_in = timer.time()
-
+                
         if argsdict['u_loaded'] == False:
             u, argsdict = loader.universe_loader_traj(argsdict)
 
@@ -88,7 +83,7 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
 
         elif rmsddict['bb_ref'] == 2:
             # creation of the array which has the time, the frame and the RMSD value
-            prealigner = align.AlignTraj(u,reference=ref_u, select='backbone', in_memory=True).run()
+            prealigner = align.AlignTraj(u,reference=ref_u, select='backbone', in_memory=False).run()
             reference_coords = u.trajectory.timeseries(asel=mask).mean(axis=1)
             avg = Merge(mask).load_new(reference_coords[:, None, :], order='afc')
 
@@ -136,7 +131,7 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
             i = 0; exists = True
             while i < len(index.split()):
                 try : 
-                    print(u_top.select_atoms('resid %s' % index).residues[i])
+                    print(str(u_top.select_atoms('resid %s' % index).residues[i])[1:-1])
                     i+=1
                 except IndexError:
                     print('Residue number %s doesn\'t exist' % index.split()[i])
@@ -183,9 +178,6 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
             except rmsddict['subs_ref'] not in (1,2):
                 print('Type only 1 or 2.')
                 continue
-        if argsdict['timer'] == True:
-            import time as timer
-            time_in = timer.time()
 
         if argsdict['u_loaded'] == False:
             u, argsdict = loader.universe_loader_traj(argsdict)
@@ -337,10 +329,6 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
                 print('Type only 1 or 2.')
                 continue
 
-        if argsdict['timer'] == True:
-            import time as timer
-            time_in = timer.time()
-
         if argsdict['u_loaded'] == False:
             u, argsdict = loader.universe_loader_traj(argsdict)
 
@@ -422,12 +410,6 @@ def rmsd(u, argsdict=dict({'trajectory': [None, None], 'frame': None, 'latex': F
         if argsdict['latex'] == True:
             plt.savefig('%s/plot_residue_backbone.eps' % argsdict['subdir'], transparent=False, width=width_plots, dpi=300, bbox_inches='tight')
         plt.close()
-
-
-    ### Time counter ends
-    if argsdict['timer'] == True:
-        time_fin = timer.time()
-        print("I spent " + str(round((time_fin-time_in)/60,1)) + " min")
         
     return u, argsdict
 
