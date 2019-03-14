@@ -103,11 +103,11 @@ else :
 
 
 for i in range(len(argsdict['trajectory'])):
-    if argsdict['trajectory'][i] not in os.listdir():
+    if  os.path.isfile(argsdict['trajectory'][i]) == False:
         print('One of the trajectory files does not exist in the current directory.')
         exit(0)
 
-if argsdict['parameters'] not in os.listdir():
+if  os.path.isfile(argsdict['parameters']) == False:
     print('Topology-and-parameters file does not exist in the current directory.')
     exit(0)
 

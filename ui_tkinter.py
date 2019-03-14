@@ -4,7 +4,7 @@ import old_modules as om
 
 root=Tk()
 root.title('pyLOXr')
-root.iconbitmap('favicon.ico')
+#root.iconbitmap('favicon.ico')
 #root.config(bg="black")
 
 #main_frame=Frame(root)
