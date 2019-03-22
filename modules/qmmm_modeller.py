@@ -318,7 +318,7 @@ def set_act(name_prmtop, name_inpcrd):
 
     while True:
         try :
-            carbon = input("Type the number of the central carbon: ")
+            carbon = input("Type the number of the central atom: ")
             sel_carbon = str(u_set_act.select_atoms("bynum %s" % carbon))
             locA = sel_carbon.find('[<') + 2
             locB = sel_carbon.find(' and segid')
@@ -376,7 +376,7 @@ def set_act_res(name_prmtop, name_inpcrd):
 
     while True:
         try :
-            carbon = input("Type the number of the central carbon: ")
+            carbon = input("Type the number of the central atom: ")
             sel_carbon = str(u_set_act.select_atoms("bynum %s" % carbon))
             locA = sel_carbon.find('[<') + 2
             locB = sel_carbon.find(' and segid')
