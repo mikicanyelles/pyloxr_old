@@ -131,12 +131,12 @@ def saver(u, argsdict, frame, ligand, radius):
     sys.stderr = stderr_
 
     if frame == None:
-        selection = u.select_atoms(' not ((resname HOH or resname WAT or resname Na+) and (not around %s resname %s))' % (radius, ligand))
+        selection = u.select_atoms('protein or byres around %s resname %s' % (radius, ligand))
         selection.write('qmmm_models/qmmm_model_%s.pdb' % (str(argsdict['frame'])[:str(argsdict['frame']).find('.pdb')]))
 
     elif frame != None:
         u.trajectory[frame-1]
-        selection = u.select_atoms(' not ((resname HOH or resname WAT or resname Na+) and (not around %s resname %s))' % (radius, ligand))
+        selection = u.select_atoms('protein or byres around %s resname %s' % (radius, ligand))
         selection.write('qmmm_models/qmmm_model_%s.pdb' % frame)
 
     stderr_.close()
