@@ -359,7 +359,6 @@ def set_act(name_prmtop, name_inpcrd):
             print("Type just the number, please.")
             continue
 
-
     selection = u_set_act.select_atoms(str('around %s bynum %s' % (radius, carbon)))
     txt = open('qmmm_models/set_act_%s_%s' % (name_prmtop[12:-6], radius), 'w')
     txt.write('set act { ')
@@ -369,6 +368,65 @@ def set_act(name_prmtop, name_inpcrd):
         txt.write(str(selection[i])[locA:locB] + " ")
     txt.write("} ")
     txt.close()
+
+def set_act_res(name_prmtop, name_inpcrd):
+    from MDAnalysis import Universe
+
+    u_set_act = Universe(name_prmtop, name_inpcrd)
+
+    while True:
+        try :
+            carbon = input("Type the number of the central carbon: ")
+            sel_carbon = str(u_set_act.select_atoms("bynum %s" % carbon))
+            locA = sel_carbon.find('[<') + 2
+            locB = sel_carbon.find(' and segid')
+            break
+        except SelectionError:
+            print('The selection does not exists. Please, type an atom that exists.')
+            continue
+
+
+
+    while True:
+        try :
+            quest = input('You selected this atom: %s. Is it correct ([y]/n)? ' % sel_carbon[locA:locB])
+
+            if quest in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
+                while True:
+                    try:
+                        carbon = input("Type the number of the central carbon: ")
+                        sel_carbon = str(u_set_act.select_atoms("bynum %s" % carbon))
+                        locA = sel_carbon.find('[<') + 2
+                        locB = sel_carbon.find(' and segid')
+                        break
+                    except SelectionError:
+                        continue
+                continue
+
+            elif quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+                break
+
+        except ValueError:
+            print("Type just \'yes\' or \'no\'.")
+
+    while True:
+        try :
+            radius = float(input("Which is the desired radius (in Å)? "))
+            break
+        except ValueError:
+            print("Type just the number, please.")
+            continue
+
+    selection = u_set_act.select_atoms(str('byres around %s bynum %s' % (radius, carbon)))
+    txt = open('qmmm_models/set_act_%s_%s' % (name_prmtop[12:-6], radius), 'w')
+    txt.write('set act { ')
+    for i in range(0, len(selection)):
+        locA = str(selection[i]).find('<Atom ') + 6
+        locB = str(selection[i]).find(': ')
+        txt.write(str(selection[i])[locA:locB] + " ")
+    txt.write("} ")
+    txt.close()
+
 
 
 def qmmm_modeller(u, argsdict):
@@ -386,7 +444,7 @@ def qmmm_modeller(u, argsdict):
                 if quest in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
                     break
                 elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', 'yeS', '1'):
-                    set_act(name_prmtop, name_inpcrd)
+                    set_act_res(name_prmtop, name_inpcrd)
                     break
                 else :
                     print('Answer just \'yes\' or \'no\'.')
