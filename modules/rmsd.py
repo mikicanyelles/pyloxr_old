@@ -20,6 +20,7 @@ def rmsd(u, argsdict):
     ref_u = Universe(argsdict['parameters'], argsdict['trajectory'][:], ref_frame=0)
 
     rmsddict = {'bb_ref' : None, 'mask' : None, 'subs_ref' : None}
+
     while True:
         try :
             rmsddict['mask'] = int(input('Do you want to plot the RMSD of the backbone (1), of the substrate (2) or of both (3)? '))
