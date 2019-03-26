@@ -8,16 +8,20 @@ import copy
 import shutil
 
 
-def ask(argsdict):
+def distance_cutoff(argsdict):
     '''
-    Function that asks for atom indexes (the atoms which will be used for stablishing the criteria of selection).
-    It lets compare atoms between them so only the shortest distance is used.
-    It aks also for the cut-off.
-    Returns the \'atoms_list\' and the \'cut_off\' values.
+    Function that requires the numbers of the atoms to be measured, the cut-off 
+    distance and creates a dictionary of type 1 and which includes the list of 
+    the ref atom, the com atoms and the cut-off. 
+    The dict will have the following shape:
+        dict = {type : cut-off, features : [[ref_atom], [comp_atoms], [cut-off]]}
     '''
+
+    dict_ = {'type' : 1, 'features' : [[], [], []]}
+
     while True:
         try :
-            prot_atoms = [int(input("Input the number of one of the selected atoms for measuring distances. "))]
+            dict_['features'][0] = [int(input("Input the number of one of the selected atoms for measuring distances. "))]
             break
         except ValueError:
             print('The atom\'s number has not been correctly introduced.\n')
@@ -27,16 +31,15 @@ def ask(argsdict):
         try :
             subs_atoms_input = input("Input the number of the atom(s) for measuring distances (separate by a comma if you want to consider only the nearest one). ")
             if subs_atoms_input.find(',') != -1:
-                subs_atoms = subs_atoms_input.split(',')
+                dict_['features'][1] = subs_atoms_input.split(',')
                 for i in range(0, len(subs_atoms)):
-                    subs_atoms[i] = int(subs_atoms[i])
+                    dict_['features'][1][i] = int(dict_['features'][1][i])
             else :
-                subs_atoms = [int(subs_atoms_input)]
+                dict_['features'][1] = [int(subs_atoms_input)]
             break
         except ValueError:
             print('(Some of) the number(s) of the atom(s) has not been correctly introduced.\n')
             continue
-    atoms_list = [prot_atoms, subs_atoms]
 
     u_top = Universe(argsdict['parameters'])
     quest = None
@@ -45,10 +48,10 @@ def ask(argsdict):
         print("\nYou have selected those atoms:\n")
         ### Print selected atoms (number, name, type, resname an resid) and save names
         exists = []
-        for i in range(0, len(atoms_list)):
+        for i in range(0, len(dict_['features'][0:2])):
             name = None
-            for j in range(0, len(atoms_list[i])):
-                a = str(u_top.select_atoms("bynum %s" % atoms_list[i][j]))
+            for j in range(0, len(dict_['features'][0:2][i])):
+                a = str(u_top.select_atoms("bynum %s" % dict_['features'][0:2][i][j]))
                 exists.append(a.find('AtomGroup []') != -1)
                 locA = a.find('[<') +2
                 locB = a.find(' and')
@@ -69,7 +72,7 @@ def ask(argsdict):
         if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
             while True:
                 try :
-                    prot_atoms = [int(input("Input the number of one of the selected atoms for measuring distances. "))]
+                    dict_['features'][0] = [int(input("Input the number of one of the selected atoms for measuring distances. "))]
                     break
                 except ValueError:
                     print('The atom\'s number has not been correctly introduced.\n')
@@ -79,16 +82,15 @@ def ask(argsdict):
                 try :
                     subs_atoms_input = input("Input the number of the atom(s) for measuring distances (separate by a comma if you want to consider only the nearest one). ")
                     if subs_atoms_input.find(',') != -1:
-                        subs_atoms = subs_atoms_input.split(',')
-                        for i in range(0, len(subs_atoms)):
-                            subs_atoms[i] = int(subs_atoms[i])
+                        dict_['features'][1] = subs_atoms_input.split(',')
+                        for i in range(0, len(dict_['features'][1])):
+                            dict_['features'][1][i] = int(dict_['features'][1][i])
                     else :
-                        subs_atoms = [int(subs_atoms_input)]
+                        dict_['features'][1] = [int(subs_atoms_input)]
                     break
                 except ValueError:
                     print('(Some of) the number(s) of the atom(s) has not been correctly introduced.\n')
                     continue
-            atoms_list = [prot_atoms, subs_atoms]
             continue
 
         elif quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
@@ -101,90 +103,19 @@ def ask(argsdict):
 
     while True:
         try :
-            cut_off = float(input("Type the cut-off distance (in Å): "))
+            dict_['features'][2] = float(input("Type the cut-off distance (in Å): "))
             break
         except ValueError:
             print("The cut-off distance has not been well specified. Please, retype the cut-off distance.")
             continue
+    print(dict_)
 
-    return atoms_list, cut_off
-
-
-def bool_creator(u, argsdict, atoms_list, cut_off):
+def distance_comparison(argsdict):
     '''
-    Using the \'atoms_list\' and the \'cut_off\', it calculates the distances between the selected atoms and compares it
-    (or the shortest if comparison is required) to the  \'cut_off\' distance. If the computed distance is shortest or equal
-    to the \'cut_off\' distance, it saves \'True\' to a boolean list. If the distance is grater, \'False\' is saved.
-    Finally, if more than one criteria is specified, it will compare the obtained boolean arrays.
+    Function that requires the numbers of the two pairs of atoms, the difference 
+    (if desired) and creates a dictionary of type 2 which includes the following:
+        dict = {type : cut-off, features : [[1st pair], [2nd pair], [difference]]}
     '''
-    if argsdict['u_loaded'] == False:
-        from modules import loader
-        u, argsdict = loader.universe_loader_traj(argsdict)
-
-    atoms_sel = []; sel_bool_ = []
-    for i in range(0, len(atoms_list)):
-        sel_bool_.append([])
-        atoms_sel.append([[],[]])
-        atoms_sel[i][0] = u.select_atoms('bynum %s' % atoms_list[i][0][0])
-        sel_ = None
-        for j in range(0, len(atoms_list[i][1])):
-            if sel_ == None:
-                sel_ = 'bynum %s' % atoms_list[i][1][j]
-            else :
-                sel_ = sel_ + ' or bynum %s' % atoms_list[i][1][j]
-        atoms_sel[i][1] = u.select_atoms(sel_)
-        del sel_
-
-    time_ = 0
-    widgets = ['Progress: ', Percentage(), ' ', Bar(marker='#',left='[',right=']'),
-           ' ', ETA(), ' | ', Timer(), ' ']
-
-    pbar = ProgressBar(widgets=widgets, maxval=len(u.trajectory))
-    pbar.start()
-
-    for ts in u.trajectory:
-        time_+=1
-
-        for i in range(0, len(atoms_sel)):
-            if argsdict['parallel'] == False:
-                dist_ = min(distanceslib.distance_array(atoms_sel[i][0].positions, atoms_sel[i][1].positions, backend='serial'))
-            elif argsdict['parallel'] == True:
-                dist_ = min(distanceslib.distance_array(atoms_sel[i][0].positions, atoms_sel[i][1].positions, backend='OpenMP'))
-
-            if dist_ <= cut_off[i]:
-                sel_bool_[i].append(True)
-            elif dist_ > cut_off[i]:
-                sel_bool_[i].append(False)
-
-        pbar.update(time_)
-
-    pbar.finish()
-
-    sel_bool = []
-    if len(sel_bool_) == 1:
-        #for i in range(len(sel_bool_)):
-        sel_bool = copy.deepcopy(sel_bool_[0])
-    elif len(sel_bool_) > 1:
-        for i in range(len(u.trajectory)):
-            bool_ = []
-            for j in range(len(sel_bool_)):
-                bool_.append(sel_bool_[j][i])
-            if False in bool_:
-                sel_bool.append(False)
-            elif False not in bool_:
-                sel_bool.append(True)
-        del bool_
-    del sel_bool_
-
-    print("\nThe " + str(round((sel_bool.count(True)/len(sel_bool) * 100), 4)) + '% of the frames satisfy the specified criteria.\n')
-
-    #print(atoms_sel)
-    #for i in range(len(atoms_sel)):
-    #    for j in range(len(atoms_sel[i])):
-    #        print(atoms_sel[i][j])
-
-    return u, argsdict, sel_bool
-
 
 def txt_saver(sel_bool, atoms_list, cut_off):
 
@@ -433,14 +364,15 @@ def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
 
     stderr_.close()
 
-
 def frame_selector(u, argsdict):
 
+    '''
     atoms_list = []; cut_off = []
     atoms_list_, cut_off_ = ask(argsdict)
 
     atoms_list.append(atoms_list_)
     cut_off.append(cut_off_)
+    '''
 
     while True:
         quest = input("Do you want to add another distance criteria for selecting frames (y/[n])? ")
@@ -455,6 +387,7 @@ def frame_selector(u, argsdict):
             print("Sorry, answer again, please.")
             continue
 
+    # bool_creator has to be converted to the looper
     u, argsdict, sel_bool = bool_creator(u, argsdict, atoms_list, cut_off)
 
     while True:
