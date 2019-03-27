@@ -160,7 +160,7 @@ elif argsdict['module'] == 3:
 
 elif argsdict['module'] == 4:
 #    u, argsdict = frames_selector.frame_selector(u, argsdict)
-    frames_selector.distance_cutoff(argsdict)
+    frames_selector.distance_comparison(argsdict)
     argsdict['module'] = None
 
 elif argsdict['module'] == 5:
