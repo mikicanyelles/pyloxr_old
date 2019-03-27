@@ -10,18 +10,18 @@ import shutil
 
 def distance_cutoff(argsdict):
     '''
-    Function that requires the numbers of the atoms to be measured, the cut-off 
-    distance and creates a dictionary of type 1 and which includes the list of 
-    the ref atom, the com atoms and the cut-off. 
+    Function that requires the numbers of the atoms to be measured, the cut-off
+    distance and creates a dictionary of type 1 and which includes the list of
+    the ref atom, the com atoms and the cut-off.
     The dict will have the following shape:
         dict = {type : cut-off, features : [[ref_atom], [comp_atoms], [cut-off]]}
     '''
 
-    dict_ = {'type' : 1, 'features' : [[], [], []]}
+    critdict = {'type' : 1, 'features' : [[], [], []]}
 
     while True:
         try :
-            dict_['features'][0] = [int(input("Input the number of one of the selected atoms for measuring distances. "))]
+            critdict['features'][0] = [int(input("Input the number of one of the selected atoms for measuring distances. "))]
             break
         except ValueError:
             print('The atom\'s number has not been correctly introduced.\n')
@@ -31,11 +31,11 @@ def distance_cutoff(argsdict):
         try :
             subs_atoms_input = input("Input the number of the atom(s) for measuring distances (separate by a comma if you want to consider only the nearest one). ")
             if subs_atoms_input.find(',') != -1:
-                dict_['features'][1] = subs_atoms_input.split(',')
+                critdict['features'][1] = subs_atoms_input.split(',')
                 for i in range(0, len(subs_atoms)):
-                    dict_['features'][1][i] = int(dict_['features'][1][i])
+                    critdict['features'][1][i] = int(critdict['features'][1][i])
             else :
-                dict_['features'][1] = [int(subs_atoms_input)]
+                critdict['features'][1] = [int(subs_atoms_input)]
             break
         except ValueError:
             print('(Some of) the number(s) of the atom(s) has not been correctly introduced.\n')
@@ -48,10 +48,10 @@ def distance_cutoff(argsdict):
         print("\nYou have selected those atoms:\n")
         ### Print selected atoms (number, name, type, resname an resid) and save names
         exists = []
-        for i in range(0, len(dict_['features'][0:2])):
+        for i in range(0, len(critdict['features'][0:2])):
             name = None
-            for j in range(0, len(dict_['features'][0:2][i])):
-                a = str(u_top.select_atoms("bynum %s" % dict_['features'][0:2][i][j]))
+            for j in range(0, len(critdict['features'][0:2][i])):
+                a = str(u_top.select_atoms("bynum %s" % critdict['features'][0:2][i][j]))
                 exists.append(a.find('AtomGroup []') != -1)
                 locA = a.find('[<') +2
                 locB = a.find(' and')
@@ -72,7 +72,7 @@ def distance_cutoff(argsdict):
         if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
             while True:
                 try :
-                    dict_['features'][0] = [int(input("Input the number of one of the selected atoms for measuring distances. "))]
+                    critdict['features'][0] = [int(input("Input the number of one of the selected atoms for measuring distances. "))]
                     break
                 except ValueError:
                     print('The atom\'s number has not been correctly introduced.\n')
@@ -82,11 +82,11 @@ def distance_cutoff(argsdict):
                 try :
                     subs_atoms_input = input("Input the number of the atom(s) for measuring distances (separate by a comma if you want to consider only the nearest one). ")
                     if subs_atoms_input.find(',') != -1:
-                        dict_['features'][1] = subs_atoms_input.split(',')
-                        for i in range(0, len(dict_['features'][1])):
-                            dict_['features'][1][i] = int(dict_['features'][1][i])
+                        critdict['features'][1] = subs_atoms_input.split(',')
+                        for i in range(0, len(critdict['features'][1])):
+                            critdict['features'][1][i] = int(critdict['features'][1][i])
                     else :
-                        dict_['features'][1] = [int(subs_atoms_input)]
+                        critdict['features'][1] = [int(subs_atoms_input)]
                     break
                 except ValueError:
                     print('(Some of) the number(s) of the atom(s) has not been correctly introduced.\n')
@@ -103,19 +103,165 @@ def distance_cutoff(argsdict):
 
     while True:
         try :
-            dict_['features'][2] = float(input("Type the cut-off distance (in Å): "))
+            critdict['features'][2] = float(input("Type the cut-off distance (in Å): "))
             break
         except ValueError:
             print("The cut-off distance has not been well specified. Please, retype the cut-off distance.")
             continue
-    print(dict_)
+
+    return critdict
 
 def distance_comparison(argsdict):
     '''
-    Function that requires the numbers of the two pairs of atoms, the difference 
+    Function that requires the numbers of the two pairs of atoms, the difference
     (if desired) and creates a dictionary of type 2 which includes the following:
         dict = {type : cut-off, features : [[1st pair], [2nd pair], [difference]]}
     '''
+
+    critdict = {'type' : 2, 'features' : [[], [], []]}
+
+    while True:
+        first_inp = input('Type the numbers of the atoms which form to the first bond (which will be the shortest), separated by a comma or a space: ')
+
+        if first_inp.find(',') == -1 and first_inp.find(' ') == -1:
+            print('Atoms have not been correctly introduced. Please, introduce them again.')
+            continue
+        elif len(first_inp.split(',')) > 2 or len(first_inp.split(' ')) > 2:
+            print('More than two atoms have been specified. Specify only two.')
+            continue
+        else :
+            if len(first_inp.split(',')) == 2:
+                first_inp = first_inp.split(',')
+            elif len(first_inp.split(' ')) == 2:
+                first_inp = first_inp.split(' ')
+
+            try :
+                critdict['features'][0].append(int(first_inp[0]))
+                critdict['features'][0].append(int(first_inp[1]))
+            except ValueError:
+                print('One of the atoms has not been correctly introduced. Type only the corresponding numbers')
+                continue
+
+            u_top = Universe(argsdict['parameters'])
+            exists = []
+            for i in range(0, len(critdict['features'][0])):
+                a = str(u_top.select_atoms("bynum %s" % critdict['features'][0][i]))
+                exists.append(a.find('AtomGroup []') != -1)
+                locA = a.find('[<') +2
+                locB = a.find(' and')
+                print(a[locA:locB])
+
+            if True in exists:
+                print('Some of the specified atom doesn\'t exist. Enter the atom numbers again.\n')
+                quest = 'no'
+                del exists
+            else :
+                quest_ = True
+                while quest_ == True:
+                    quest = str(input("Are all numbers correct ([y]/n)?"))
+
+                    if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0', '', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+                        break
+                    else :
+                        print("Sorry, answer again, please.")
+                        quest_ = False
+                        continue
+
+                if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
+                    continue
+                elif quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+                    break
+
+
+    while True:
+        second_inp = input('Type the numbers of the atoms which form to the first bond (which will be the shortest), separated by a comma or a space: ')
+
+        if second_inp.find(',') == -1 and second_inp.find(' ') == -1:
+            print('Atoms have not been correctly introduced. Please, introduce them again.')
+            continue
+        elif len(second_inp.split(',')) > 2 or len(second_inp.split(' ')) > 2:
+            print('More than two atoms have been specified. Specify only two.')
+            continue
+        else :
+            if len(second_inp.split(',')) == 2:
+                second_inp = second_inp.split(',')
+            elif len(second_inp.split(' ')) == 2:
+                second_inp = second_inp.split(' ')
+
+            try :
+                critdict['features'][1].append(int(second_inp[0]))
+                critdict['features'][1].append(int(second_inp[1]))
+            except ValueError:
+                print('One of the atoms has not been correctly introduced. Type only the corresponding numbers')
+                continue
+
+            u_top = Universe(argsdict['parameters'])
+            exists = []
+            for i in range(0, len(critdict['features'][0])):
+                a = str(u_top.select_atoms("bynum %s" % critdict['features'][1][i]))
+                exists.append(a.find('AtomGroup []') != -1)
+                locA = a.find('[<') +2
+                locB = a.find(' and')
+                print(a[locA:locB])
+
+            if True in exists:
+                print('Some of the specified atom doesn\'t exist. Enter the atom numbers again.\n')
+                quest = 'no'
+                del exists
+            else :
+                quest_ = True
+                while quest_ == True:
+                    quest = str(input("Are all numbers correct ([y]/n)?"))
+
+                    if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0', '', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+                        break
+                    else :
+                        print("Sorry, answer again, please.")
+                        quest_ = False
+                        continue
+
+                if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
+                    continue
+                elif quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+                    break
+
+    while True:
+        diff_q = input('Do you want to set a minimum distance difference (y/n)? ')
+
+        if diff_q in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
+            critdict['features'][2] = None
+            break
+        elif diff_q in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+            diff_q_ = True
+
+            while diff_q_ == True:
+                try :
+                    critdict['features'][2] = float(input('Which diference do you want to set (in Å)?'))
+                    diff_q_ = False
+                except ValueError:
+                    print('Type only the number.')
+            break    
+        else :
+            print("Sorry, answer again, please.")
+            continue
+
+
+    return critdict
+
+
+
+def bool_creator(u, argsdict, critdict):
+
+    time_ = 0
+    widgets = ['Progress: ', Percentage(), ' ', Bar(marker='#',left='[',right=']'),
+           ' ', ETA(), ' | ', Timer(), ' ']
+
+    pbar = ProgressBar(widgets=widgets, maxval=len(u.trajectory))
+    pbar.start()
+
+
+
+
 
 def txt_saver(sel_bool, atoms_list, cut_off):
 
