@@ -32,7 +32,7 @@ def distance_cutoff(argsdict):
             subs_atoms_input = input("Input the number of the atom(s) for measuring distances (separate by a comma if you want to consider only the nearest one). ")
             if subs_atoms_input.find(',') != -1:
                 critdict['features'][1] = subs_atoms_input.split(',')
-                for i in range(0, len(subs_atoms)):
+                for i in range(0, len(critdict['features'][1])):
                     critdict['features'][1][i] = int(critdict['features'][1][i])
             else :
                 critdict['features'][1] = [int(subs_atoms_input)]
@@ -109,7 +109,9 @@ def distance_cutoff(argsdict):
             print("The cut-off distance has not been well specified. Please, retype the cut-off distance.")
             continue
 
+    print(critdict)
     return critdict
+
 
 def distance_comparison(argsdict):
     '''
@@ -240,18 +242,23 @@ def distance_comparison(argsdict):
                     diff_q_ = False
                 except ValueError:
                     print('Type only the number.')
-            break    
+            break
         else :
             print("Sorry, answer again, please.")
             continue
 
-
     return critdict
 
 
+def bool_creator(u, argsdict, critdict):#_list):
 
-def bool_creator(u, argsdict, critdict):
+    if argsdict['u_loaded'] == False:
+        from modules import loader
+        u, argsdict = loader.universe_loader_traj(argsdict)
 
+### ADD THE NAME
+
+    frames_bool = []
     time_ = 0
     widgets = ['Progress: ', Percentage(), ' ', Bar(marker='#',left='[',right=']'),
            ' ', ETA(), ' | ', Timer(), ' ']
@@ -259,19 +266,89 @@ def bool_creator(u, argsdict, critdict):
     pbar = ProgressBar(widgets=widgets, maxval=len(u.trajectory))
     pbar.start()
 
+    for ts in u.trajectory:
+        bool_ar = []
+        for i in range(len(critdist)):
+
+            if critdict[i]['type'] == 1:
+
+                ref_atom = u.select_atoms('bynum critdict[i]['features'][0][0]')
+
+                comp_atom_str = 'bynum'
+                for j in range(len(critdict[i]['features'][1]))
+                    comp_atom_str = comp_atom_str + ' critdict[i]['features'][1][j]'
+                comp_atom = u.select_atoms(comp_atom_str)
+
+                if argsdict['parallel'] == False:
+                    dist_ = min(distanceslib.distance_array(ref_atom.positions, comp_atom.positions, backend='serial'))
+                elif argsdict['parallel'] == True:
+                    dist_ = min(distanceslib.distance_array(ref_atom.positions, comp_atom.positions, backend='OpenMP'))
+
+                if dist_ <= critdict[i]['features'][2]:
+                    bool_ar.append(True)
+                elif dist_ > critdict[i]['features'][2]:
+                    bool_ar.append(False)
+
+            elif critdict[i]['type'] = 2:
+
+                1A = u.select_atoms('bynum ' + critdict[i]['features'][0][0].positions)
+                1B = u.select_atoms('bynum ' + critdict[i]['features'][0][1].positions)
+                2A = u.select_atoms('bynum ' + critdict[i]['features'][1][0].positions)
+                2B = u.select_atoms('bynum ' + critdict[i]['features'][1][1].positions)
+
+                if argsdict['parallel'] == False:
+                    dist1 = distancelib.calc_bonds(1A, 1B, backend='serial')
+                    dist2 = distancelib.calc_bonds(2A, 2B, backend='serial')
+                elif argsdict['parallel'] == False:
+                    dist1 = distancelib.calc_bonds(1A, 1B, backend='OpenMP')
+                    dist2 = distancelib.calc_bonds(2A, 2B, backend='OpenMP')
+
+                if critdict[i]['features'][2] == None:
+                    if dist1 < dist2:
+                        bool_ar.append(True)
+                    elif dist1 >= dist2:
+                        bool_ar.append(False)
+
+                elif critdict[i]['features'][2] != None:
+                    if (dist1 < dist2) and (abs(dist1-dist2) < critdict[i]['features'][2]):
+                        bool_ar.append(True)
+                    elif (dist1 < dist2) and (abs(dist1-dist2) > critdict[i]['features'][2]):
+                        bool_ar.append(False)
+                    elif dist1 >= dist2:
+                        bool_ar.append(False)
 
 
+            if False in bool_ar:
+                frames_bool.append(False)
+            if False not in bool_ar:
+                frames_bool.append(True)
 
 
-def txt_saver(sel_bool, atoms_list, cut_off):
+        time_+=1
+        pbar.update(time_)
 
-    txt_name = ''
-    for i in range(len(atoms_list)):
-        txt_name = txt_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
+    pbar.finish()
+
+    percent = round(frames_bool.count(True)/len(frames_bool), 2) * 100
+
+    print('The %s % of the frames of the trajectory satisfy the imposed criterion(a).' % percent)
+
+    return u, argsdict, frames_bool
+
+def txt_saver(frames_bool, atoms_list, cut_off):
+
+    txt_name = 'summary'
+    for i in range(len(critdict)):
+        for i in range(len(critdict[i]['features'][0])):
+            txt_name = txt_name + '_' + str(critdict[i]['features'][0][i])
+        for j in range(len(critdict[i]['features'][1])):
+            txt_name = txt_name + '_' + str(critdict[i]['features'][1][j])
+
+        txt_name = txt_name + '_' + str(critdict[i]['features'][2])
 
     if txt_name in os.listdir():
         while True:
-            quest = input("A previous summary of the frame selection exists. Do you want to overwrite it (1) or to give a new name (2)? ([1]/2) ")
+            quest = input("A previous summary of the frame selection exists. Do you want to overwrite it (1) or to give a new name (2) ([1]/2)? ")
             if quest == '1' or quest == '':
                 break
             elif quest == '2':
@@ -289,42 +366,40 @@ def txt_saver(sel_bool, atoms_list, cut_off):
 
     print('Summary file is being saved as \'%s\'.' % txt_name)
 
-    txt_ext_name = ''
-    for i in range(len(atoms_list)):
-        txt_ext_name = txt_ext_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
+    txt_ext_name = txt_name + '_ext'
 
-        if txt_ext_name in os.listdir():
-            while True:
-                quest = input("A previous extended summary of the frame selection exists. Do you want to overwrite it (1) or to give a new name (2)? ([1]/2) ")
-                if quest == '1' or quest == '':
-                    break
-                elif quest == '2':
-                    while True:
-                        txt_ext_name = input('Type the new name for the extended summary file: ')
-                        quest2 = input('Is \'%s\' correct? ([y]/n) ' % txt_ext_name)
-                        if quest2 in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-                            break
-                        elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
-                            continue
-                    break
-                else :
-                    print('Type just \'1\' or \'2\'.')
-                    continue
+    if txt_ext_name in os.listdir():
+        while True:
+            quest = input("A previous extended summary of the frame selection exists. Do you want to overwrite it (1) or to give a new name (2)? ([1]/2) ")
+            if quest == '1' or quest == '':
+                break
+            elif quest == '2':
+                while True:
+                    txt_ext_name = input('Type the new name for the extended summary file: ')
+                    quest2 = input('Is \'%s\' correct? ([y]/n) ' % txt_ext_name)
+                    if quest2 in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+                        break
+                    elif quest2 in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
+                        continue
+                break
+            else :
+                print('Type just \'1\' or \'2\'.')
+                continue
 
     print('Extended summary file is being saved as \'%s\'.' % txt_ext_name)
 
     txt = open(txt_name, 'w')
     txt_ext = open(txt_ext_name, 'w')
 
-    for i in range(len(sel_bool)):
-        if sel_bool[i] == True:
+    for i in range(len(frames_bool)):
+        if frames_bool[i] == True:
             txt.write('Frame %s satisfies the imposed criteria\n' % (i+1))
             txt_ext.write('Frame %s satisfies the imposed criteria\n' % (i+1))
-        elif sel_bool[i] == False:
+        elif frames_bool[i] == False:
             txt_ext.write('Frame %s does not satisfy the imposed criteria\n' % (i+1))
 
-    T = (sel_bool.count(True)/len(sel_bool)) * 100
-    F = (sel_bool.count(False)/len(sel_bool)) * 100
+    T = (frames_bool.count(True)/len(frames_bool)) * 100
+    F = (frames_bool.count(False)/len(frames_bool)) * 100
 
     txt.write('\n\nThe %s %% satisfy the imposed criteria.' % T)
     txt.write('\nThe %s %% do not satisfy the imposed criteria.' % F)
@@ -336,14 +411,20 @@ def txt_saver(sel_bool, atoms_list, cut_off):
     txt_ext.close()
 
 
-def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
+def pdb_saver_all(u, frames_bool, atoms_list, cut_off):
     '''
     Function for saving the pdbs of all the frames which satisfy the imposed criteria.
     '''
 
     dir_name = 'frames'
-    for i in range(len(atoms_list)):
-        dir_name = dir_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
+    for i in range(len(critdict)):
+        for i in range(len(critdict[i]['features'][0])):
+            dir_name = dir_name + '_' + str(critdict[i]['features'][0][i])
+        for j in range(len(critdict[i]['features'][1])):
+            dir_name = dir_name + '_' + str(critdict[i]['features'][1][j])
+
+        dir_name = dir_name + '_' + str(critdict[i]['features'][2])
+
 
     if dir_name not in os.listdir():
         os.mkdir(dir_name)
@@ -378,15 +459,15 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
     widgets2 = ['Progress: ', Percentage(), ' ', Bar(marker='#',left='[',right=']'),
            ' ', ETA(), ' | ', Timer(), ' ']
 
-    pbar2 = ProgressBar(widgets=widgets2, maxval=len(sel_bool))
+    pbar2 = ProgressBar(widgets=widgets2, maxval=len(frames_bool))
     pbar2.start()
 
     stderr_ = open(os.devnull, 'w')
     sys.stderr = stderr_
 
-    for i in range(len(sel_bool)):
+    for i in range(len(frames_bool)):
         time_+=1
-        if sel_bool[i] == True:
+        if frames_bool[i] == True:
             u.trajectory[i]
             sel = u.select_atoms('all')
             sel.write('%s/frame_%s.pdb' % (dir_name, (i+1)))
@@ -397,7 +478,7 @@ def pdb_saver_all(u, sel_bool, atoms_list, cut_off):
     stderr_.close()
 
 
-def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
+def pdb_saver_some(u, frames_bool, atoms_list, cut_off):
     '''
     Function for saving the pdbs of the selected frames which satisfy the imposed criteria.
     '''
@@ -444,8 +525,8 @@ def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
 
             if frame_n in ('list', 'LIST', 'List', 'lIST', 'LIst', 'liST', 'LISt', 'lisT'):
                 print_ = ''
-                for i in range(len(sel_bool)):
-                    if sel_bool[i] == True:
+                for i in range(len(frames_bool)):
+                    if frames_bool[i] == True:
                         if print_ == '':
                             print_ = str(int(i+1))
                         else :
@@ -460,14 +541,14 @@ def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
 
             else :
                 frame_n = int(frame_n) -1
-                if sel_bool[frame_n] == True:
+                if frames_bool[frame_n] == True:
                     u.trajectory[frame_n]
                     sel = u.select_atoms('all')
                     sel.write('%s/frame_%s.pdb' % (dir_name, (frame_n+1)))
                     print('Frame %s saved on %s.' % ((frame_n+1), dir_name))
                     break
 
-                elif sel_bool[frame_n] == False:
+                elif frames_bool[frame_n] == False:
                     print('This frame does not satisfy the imposed criteria. Please, select another frame. (Type \'list\' to print the list of frames that satisfy the imposed criteria)')
                     continue
 
@@ -480,8 +561,8 @@ def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
 
             if frame_n in ('list', 'LIST', 'List', 'lIST', 'LIst', 'liST', 'LISt', 'lisT'):
                 print_ = ''
-                for i in range(len(sel_bool)):
-                    if sel_bool[i] == True:
+                for i in range(len(frames_bool)):
+                    if frames_bool[i] == True:
                         if print_ == '':
                             print_ = str(int(i+1))
                         else :
@@ -495,13 +576,13 @@ def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
 
             else :
                 frame_n = int(frame_n-1)
-                if sel_bool[frame_n] == True:
+                if frames_bool[frame_n] == True:
                     u.trajectory[frame_n]
                     sel = u.select_atoms('all')
                     sel.write('%s/frame_%s.pdb' % (dir_name, (frame_n+1)))
                     continue
 
-                elif sel_bool[frame_n] == False:
+                elif frames_bool[frame_n] == False:
                     print('This frame does not satisfy the imposed criteria. Please, select another frame. (Type \'list\' to print the list of frames that satisfy the imposed criteria)')
                     continue
 
@@ -509,6 +590,7 @@ def pdb_saver_some(u, sel_bool, atoms_list, cut_off):
             print('Type only the number.')
 
     stderr_.close()
+
 
 def frame_selector(u, argsdict):
 
@@ -534,12 +616,12 @@ def frame_selector(u, argsdict):
             continue
 
     # bool_creator has to be converted to the looper
-    u, argsdict, sel_bool = bool_creator(u, argsdict, atoms_list, cut_off)
+    u, argsdict, frames_bool = bool_creator(u, argsdict, atoms_list, cut_off)
 
     while True:
         quest = input('Do you want to save a summary of the selection results ([y]/n)? ')
         if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-            txt_saver(sel_bool, atoms_list, cut_off)
+            txt_saver(frames_bool, atoms_list, cut_off)
             break
         elif quest in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
             break
@@ -552,11 +634,11 @@ def frame_selector(u, argsdict):
             quest = int(input('Do you want to save all the frames (1), the selected ones (2) or any of them (3)? '))
 
             if quest == 1:
-                pdb_saver_all(u, sel_bool, atoms_list, cut_off)
+                pdb_saver_all(u, frames_bool, atoms_list, cut_off)
                 break
 
             elif quest == 2:
-                pdb_saver_some(u, sel_bool, atoms_list, cut_off)
+                pdb_saver_some(u, frames_bool, atoms_list, cut_off)
                 break
 
             elif quest == 3:
