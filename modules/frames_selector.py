@@ -14,7 +14,7 @@ def distance_cutoff(argsdict):
     distance and creates a dictionary of type 1 and which includes the list of
     the ref atom, the com atoms and the cut-off.
     The dict will have the following shape:
-        dict = {type : cut-off, features : [[ref_atom], [comp_atoms], [cut-off]]}
+        dict = {type : 1, features : [[ref_atom], [comp_atoms], [cut-off]]}
     '''
 
     critdict = {'type' : 1, 'features' : [[], [], []]}
@@ -109,7 +109,6 @@ def distance_cutoff(argsdict):
             print("The cut-off distance has not been well specified. Please, retype the cut-off distance.")
             continue
 
-    print(critdict)
     return critdict
 
 
@@ -160,7 +159,7 @@ def distance_comparison(argsdict):
             else :
                 quest_ = True
                 while quest_ == True:
-                    quest = str(input("Are all numbers correct ([y]/n)?"))
+                    quest = str(input("Are all numbers correct ([y]/n)? "))
 
                     if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0', '', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
                         break
@@ -176,7 +175,7 @@ def distance_comparison(argsdict):
 
 
     while True:
-        second_inp = input('Type the numbers of the atoms which form to the first bond (which will be the shortest), separated by a comma or a space: ')
+        second_inp = input('Type the numbers of the atoms which form to the first bond (which will be the longest), separated by a comma or a space: ')
 
         if second_inp.find(',') == -1 and second_inp.find(' ') == -1:
             print('Atoms have not been correctly introduced. Please, introduce them again.')
@@ -199,7 +198,7 @@ def distance_comparison(argsdict):
 
             u_top = Universe(argsdict['parameters'])
             exists = []
-            for i in range(0, len(critdict['features'][0])):
+            for i in range(0, len(critdict['features'][1])):
                 a = str(u_top.select_atoms("bynum %s" % critdict['features'][1][i]))
                 exists.append(a.find('AtomGroup []') != -1)
                 locA = a.find('[<') +2
@@ -213,7 +212,7 @@ def distance_comparison(argsdict):
             else :
                 quest_ = True
                 while quest_ == True:
-                    quest = str(input("Are all numbers correct ([y]/n)?"))
+                    quest = str(input("Are all numbers correct ([y]/n)? "))
 
                     if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0', '', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
                         break
@@ -251,12 +250,14 @@ def distance_comparison(argsdict):
 
 
 def bool_creator(u, argsdict, critdict):#_list):
+    '''
+    Function for creating a boolean array from a list of critdicts. It takes the type of criteria and 
+    returns the final boolean value if all criteria are satisfied or not.
+    '''
 
     if argsdict['u_loaded'] == False:
         from modules import loader
         u, argsdict = loader.universe_loader_traj(argsdict)
-
-### ADD THE NAME
 
     frames_bool = []
     time_ = 0
@@ -268,15 +269,15 @@ def bool_creator(u, argsdict, critdict):#_list):
 
     for ts in u.trajectory:
         bool_ar = []
-        for i in range(len(critdist)):
+        for i in range(len(critdict)):
 
             if critdict[i]['type'] == 1:
 
-                ref_atom = u.select_atoms('bynum critdict[i]['features'][0][0]')
+                ref_atom = u.select_atoms('bynum ' + str(critdict[i]['features'][0][0]))
 
                 comp_atom_str = 'bynum'
-                for j in range(len(critdict[i]['features'][1]))
-                    comp_atom_str = comp_atom_str + ' critdict[i]['features'][1][j]'
+                for j in range(len(critdict[i]['features'][1])):
+                    comp_atom_str = comp_atom_str + ' ' + str(critdict[i]['features'][1][j])
                 comp_atom = u.select_atoms(comp_atom_str)
 
                 if argsdict['parallel'] == False:
@@ -289,19 +290,19 @@ def bool_creator(u, argsdict, critdict):#_list):
                 elif dist_ > critdict[i]['features'][2]:
                     bool_ar.append(False)
 
-            elif critdict[i]['type'] = 2:
+            elif critdict[i]['type'] == 2:
 
-                1A = u.select_atoms('bynum ' + critdict[i]['features'][0][0].positions)
-                1B = u.select_atoms('bynum ' + critdict[i]['features'][0][1].positions)
-                2A = u.select_atoms('bynum ' + critdict[i]['features'][1][0].positions)
-                2B = u.select_atoms('bynum ' + critdict[i]['features'][1][1].positions)
+                A1 = u.select_atoms('bynum ' + str(critdict[i]['features'][0][0])).positions
+                B1 = u.select_atoms('bynum ' + str(critdict[i]['features'][0][1])).positions
+                A2 = u.select_atoms('bynum ' + str(critdict[i]['features'][1][0])).positions
+                B2 = u.select_atoms('bynum ' + str(critdict[i]['features'][1][1])).positions
 
                 if argsdict['parallel'] == False:
-                    dist1 = distancelib.calc_bonds(1A, 1B, backend='serial')
-                    dist2 = distancelib.calc_bonds(2A, 2B, backend='serial')
+                    dist1 = distanceslib.calc_bonds(A1, B2, backend='serial')
+                    dist2 = distanceslib.calc_bonds(A2, B1, backend='serial')
                 elif argsdict['parallel'] == False:
-                    dist1 = distancelib.calc_bonds(1A, 1B, backend='OpenMP')
-                    dist2 = distancelib.calc_bonds(2A, 2B, backend='OpenMP')
+                    dist1 = distanceslib.calc_bonds(A1, B1, backend='OpenMP')
+                    dist2 = distanceslib.calc_bonds(A2, B2, backend='OpenMP')
 
                 if critdict[i]['features'][2] == None:
                     if dist1 < dist2:
@@ -310,9 +311,9 @@ def bool_creator(u, argsdict, critdict):#_list):
                         bool_ar.append(False)
 
                 elif critdict[i]['features'][2] != None:
-                    if (dist1 < dist2) and (abs(dist1-dist2) < critdict[i]['features'][2]):
+                    if (dist1 < dist2) and (dist1-dist2 < critdict[i]['features'][2]):
                         bool_ar.append(True)
-                    elif (dist1 < dist2) and (abs(dist1-dist2) > critdict[i]['features'][2]):
+                    elif (dist1 < dist2) and (dist1-dist2 > critdict[i]['features'][2]):
                         bool_ar.append(False)
                     elif dist1 >= dist2:
                         bool_ar.append(False)
@@ -331,19 +332,25 @@ def bool_creator(u, argsdict, critdict):#_list):
 
     percent = round(frames_bool.count(True)/len(frames_bool), 2) * 100
 
-    print('The %s % of the frames of the trajectory satisfy the imposed criterion(a).' % percent)
+    print("The %s %% of the frames of the trajectory satisfy the imposed criterion(a)." % percent)
 
     return u, argsdict, frames_bool
 
-def txt_saver(frames_bool, atoms_list, cut_off):
+def txt_saver(frames_bool, critdict):
 
-    txt_name = 'summary'
+    txt_name = 'summary_'
     for i in range(len(critdict)):
-        for i in range(len(critdict[i]['features'][0])):
-            txt_name = txt_name + '_' + str(critdict[i]['features'][0][i])
-        for j in range(len(critdict[i]['features'][1])):
-            txt_name = txt_name + '_' + str(critdict[i]['features'][1][j])
-
+        if critdict[i]['type'] == 1:
+            txt_name = txt_name + str(critdict[i]['features'][0][0]) + '_'
+            for j in range(len(critdict[i]['features'][1])):
+                txt_name = txt_name + str(critdict[i]['features'][1][j])
+                if j != len(critdict[i]['features'][1]) -1:
+                    txt_name = txt_name + ','
+                #elif j == len(critdict[i]['features'][1]) -1:
+                #    txt_name = txt_name + '_'
+        if critdict[i]['type'] == 2:
+            txt_name = txt_name + str(critdict[i]['features'][0][0]) + ',' + str(critdict[i]['features'][0][1]) + '_' + str(critdict[i]['features'][1][0]) + ',' + str(critdict[i]['features'][1][1])
+            
         txt_name = txt_name + '_' + str(critdict[i]['features'][2])
 
     if txt_name in os.listdir():
@@ -411,20 +418,23 @@ def txt_saver(frames_bool, atoms_list, cut_off):
     txt_ext.close()
 
 
-def pdb_saver_all(u, frames_bool, atoms_list, cut_off):
+def pdb_saver_all(u, frames_bool, critdict):
     '''
     Function for saving the pdbs of all the frames which satisfy the imposed criteria.
     '''
 
-    dir_name = 'frames'
+    dir_name = 'frames_'
     for i in range(len(critdict)):
-        for i in range(len(critdict[i]['features'][0])):
-            dir_name = dir_name + '_' + str(critdict[i]['features'][0][i])
-        for j in range(len(critdict[i]['features'][1])):
-            dir_name = dir_name + '_' + str(critdict[i]['features'][1][j])
-
+        if critdict[i]['type'] == 1:
+            dir_name = dir_name + str(critdict[i]['features'][0][0]) + '_'
+            for j in range(len(critdict[i]['features'][1])):
+                dir_name = dir_name + str(critdict[i]['features'][1][j])
+                if j != len(critdict[i]['features'][1]) -1:
+                    dir_name = dir_name + ','
+        if critdict[i]['type'] == 2:
+            dir_name = dir_name + str(critdict[i]['features'][0][0]) + ',' + str(critdict[i]['features'][0][1]) + '_' + str(critdict[i]['features'][1][0]) + ',' + str(critdict[i]['features'][1][1])
+            
         dir_name = dir_name + '_' + str(critdict[i]['features'][2])
-
 
     if dir_name not in os.listdir():
         os.mkdir(dir_name)
@@ -478,21 +488,30 @@ def pdb_saver_all(u, frames_bool, atoms_list, cut_off):
     stderr_.close()
 
 
-def pdb_saver_some(u, frames_bool, atoms_list, cut_off):
+def pdb_saver_some(u, frames_bool, critdict):
     '''
     Function for saving the pdbs of the selected frames which satisfy the imposed criteria.
     '''
 
-    dir_name = 'frames'
-    for i in range(len(atoms_list)):
-        dir_name = dir_name + '_' + str(atoms_list[i][0][0]) + '_' + str(cut_off[i])
+    dir_name = 'frames_'
+    for i in range(len(critdict)):
+        if critdict[i]['type'] == 1:
+            dir_name = dir_name + str(critdict[i]['features'][0][0]) + '_'
+            for j in range(len(critdict[i]['features'][1])):
+                dir_name = dir_name + str(critdict[i]['features'][1][j])
+                if j != len(critdict[i]['features'][1]) -1:
+                    dir_name = dir_name + ','
+        if critdict[i]['type'] == 2:
+            dir_name = dir_name + str(critdict[i]['features'][0][0]) + ',' + str(critdict[i]['features'][0][1]) + '_' + str(critdict[i]['features'][1][0]) + ',' + str(critdict[i]['features'][1][1])
+            
+        dir_name = dir_name + '_' + str(critdict[i]['features'][2])
 
     if dir_name not in os.listdir():
         os.mkdir(dir_name)
-        #print(dir_name)
+ 
     elif dir_name in os.listdir():
         while True:
-            quest = input('%s subdirectory aready exists. Do you want to overwrite its content (1) or give an alternative name to the subdirectory (2)? ([1]/2) ' % dir_name)
+            quest = input('%s subdirectory aready exists. Do you want to overwrite its content (1) or give an alternative name to the subdirectory (2) ([1]/2)? ' % dir_name)
             if quest in ('1', '2', ''):
                 if quest in ('', '1'):
                     shutil.rmtree(dir_name)
@@ -594,34 +613,56 @@ def pdb_saver_some(u, frames_bool, atoms_list, cut_off):
 
 def frame_selector(u, argsdict):
 
-    '''
-    atoms_list = []; cut_off = []
-    atoms_list_, cut_off_ = ask(argsdict)
+    critdict = []
 
-    atoms_list.append(atoms_list_)
-    cut_off.append(cut_off_)
-    '''
+    while True:
+        try :
+            quest = int(input("Which type of criteria do you want to impose, cut-off distance (1) or difference of distances between two bonds (2) (1/2)? "))
+            if quest == 1:
+                critdict.append(distance_cutoff(argsdict))
+                break
+            elif quest == 2:
+                critdict.append(distance_comparison(argsdict))
+                break
+            else :
+                print('Type 1 or 2.')
+                continue
+        except ValueError:
+            print('Type 1 or 2.')
+            continue
+
 
     while True:
         quest = input("Do you want to add another distance criteria for selecting frames (y/[n])? ")
         if quest in ('', 'n', 'no', 'N', 'No', 'No', 'nO', '0'):
             break
         elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-            atoms_list_, cut_off_ = ask(argsdict)
-            atoms_list.append(atoms_list_)
-            cut_off.append(cut_off_)
+            a == True
+            while a == True:
+                try :
+                    quest = int(input("Which type of criteria do you want to impose, cut-off distance (1) or difference of distances between two bonds (2) (1/2)? "))
+                    if quest == 1:
+                        critdict.append(distance_cutoff(argsdict))
+                        a == False
+                    elif quest == 2:
+                        critdict.append(distance_comparison(argsdict))
+                        a == False
+                    else :
+                        print('Type only 1 or 2.')
+                except ValueError:
+                    print('Type 1 or 2.')
             continue
         else :
             print("Sorry, answer again, please.")
             continue
 
     # bool_creator has to be converted to the looper
-    u, argsdict, frames_bool = bool_creator(u, argsdict, atoms_list, cut_off)
+    u, argsdict, frames_bool = bool_creator(u, argsdict, critdict)
 
     while True:
         quest = input('Do you want to save a summary of the selection results ([y]/n)? ')
         if quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-            txt_saver(frames_bool, atoms_list, cut_off)
+            txt_saver(frames_bool, critdict)
             break
         elif quest in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
             break
@@ -634,11 +675,11 @@ def frame_selector(u, argsdict):
             quest = int(input('Do you want to save all the frames (1), the selected ones (2) or any of them (3)? '))
 
             if quest == 1:
-                pdb_saver_all(u, frames_bool, atoms_list, cut_off)
+                pdb_saver_all(u, frames_bool, critdict)
                 break
 
             elif quest == 2:
-                pdb_saver_some(u, frames_bool, atoms_list, cut_off)
+                pdb_saver_some(u, frames_bool, critdict)
                 break
 
             elif quest == 3:
