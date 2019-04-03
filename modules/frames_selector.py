@@ -261,6 +261,8 @@ def bool_creator(u, argsdict, critdict):#_list):
 
     frames_bool = []
     time_ = 0
+    print('trajectory length: ' + str(len(u.trajectory)))
+
     widgets = ['Progress: ', Percentage(), ' ', Bar(marker='#',left='[',right=']'),
            ' ', ETA(), ' | ', Timer(), ' ']
 
@@ -298,9 +300,9 @@ def bool_creator(u, argsdict, critdict):#_list):
                 B2 = u.select_atoms('bynum ' + str(critdict[i]['features'][1][1])).positions
 
                 if argsdict['parallel'] == False:
-                    dist1 = distanceslib.calc_bonds(A1, B2, backend='serial')
-                    dist2 = distanceslib.calc_bonds(A2, B1, backend='serial')
-                elif argsdict['parallel'] == False:
+                    dist1 = distanceslib.calc_bonds(A1, B1, backend='serial')
+                    dist2 = distanceslib.calc_bonds(A2, B2, backend='serial')
+                elif argsdict['parallel'] == True:
                     dist1 = distanceslib.calc_bonds(A1, B1, backend='OpenMP')
                     dist2 = distanceslib.calc_bonds(A2, B2, backend='OpenMP')
 
@@ -319,10 +321,10 @@ def bool_creator(u, argsdict, critdict):#_list):
                         bool_ar.append(False)
 
 
-            if False in bool_ar:
-                frames_bool.append(False)
-            if False not in bool_ar:
-                frames_bool.append(True)
+        if False in bool_ar:
+            frames_bool.append(False)
+        elif False not in bool_ar:
+            frames_bool.append(True)
 
 
         time_+=1
@@ -330,9 +332,11 @@ def bool_creator(u, argsdict, critdict):#_list):
 
     pbar.finish()
 
+    print('frames_bool length: ' + str(len(frames_bool)))
+
     percent = round(frames_bool.count(True)/len(frames_bool), 2) * 100
 
-    print("The %s %% of the frames of the trajectory satisfy the imposed criterion(a)." % percent)
+    print("The %s %% of the frames (%s frames) of the trajectory satisfy the imposed criterion(a)." % (percent, frames_bool.count(True)))
 
     return u, argsdict, frames_bool
 
@@ -576,7 +580,7 @@ def pdb_saver_some(u, frames_bool, critdict):
 
     while True:
         try :
-            frame_n = str(input('Do you want to save another frame as pdb? (frame number/[n])'))
+            frame_n = str(input('Do you want to save another frame as pdb (frame number/[n])? '))
 
             if frame_n in ('list', 'LIST', 'List', 'lIST', 'LIst', 'liST', 'LISt', 'lisT'):
                 print_ = ''
@@ -594,11 +598,12 @@ def pdb_saver_some(u, frames_bool, critdict):
                 break
 
             else :
-                frame_n = int(frame_n-1)
+                frame_n = int(frame_n)-1
                 if frames_bool[frame_n] == True:
                     u.trajectory[frame_n]
                     sel = u.select_atoms('all')
                     sel.write('%s/frame_%s.pdb' % (dir_name, (frame_n+1)))
+                    print('Frame %s saved on %s.' % ((frame_n+1), dir_name))
                     continue
 
                 elif frames_bool[frame_n] == False:
@@ -637,16 +642,16 @@ def frame_selector(u, argsdict):
         if quest in ('', 'n', 'no', 'N', 'No', 'No', 'nO', '0'):
             break
         elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-            a == True
+            a = True
             while a == True:
                 try :
                     quest = int(input("Which type of criteria do you want to impose, cut-off distance (1) or difference of distances between two bonds (2) (1/2)? "))
                     if quest == 1:
                         critdict.append(distance_cutoff(argsdict))
-                        a == False
+                        a = False
                     elif quest == 2:
                         critdict.append(distance_comparison(argsdict))
-                        a == False
+                        a = False
                     else :
                         print('Type only 1 or 2.')
                 except ValueError:
