@@ -199,10 +199,16 @@ def topology_modeller_traj(u, argsdict, frame, ligand, radius):
 
     topology = load_file(argsdict['parameters'], xyz='.temporal.pdb')
     topology.box = None
+<<<<<<< HEAD
     topology.strip(':WAT&!(:%s<:%s)' % (ligand, radius))
     topology.strip(':HOH&!(:%s<:%s)' % (ligand, radius))
     topology.strip(':Na+&!(:%s<:%s)' % (ligand, radius))
     topology.strip(':Cl-&!(:%s<:%s)' % (ligand, radius))
+=======
+    topology.strip(':WAT&!:%s<:%s' % (ligand, radius))
+    topology.strip(':Na+&!:%s<:%s' % (ligand, radius))
+    topology.strip(':Cl-&!:%s<:%s' % (ligand, radius))
+>>>>>>> c47a9c77e8efe2a191871660ed452b3d835c413a
 
     topology.write_parm(name_prmtop)
     topology.save(name_inpcrd)

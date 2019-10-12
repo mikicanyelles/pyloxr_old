@@ -358,7 +358,7 @@ def general_plotter(u, argsdict):#=dict({'trajectory': [None, None], 'frame': No
     ax1.grid(axis='both')
     for i in range(0, len(distances)):
         ax1.plot(time[0], distances[i])
-    ax1.legend(labels[:])
+    ax1.legend(labels[:], bbox_to_anchor=(1.02,1), loc=2, borderaxespad=0.)
     ax1.set_xlabel('Frame')
     if argsdict['latex'] == True:
         ax1.set_ylabel('Distance ($\AA$)')
