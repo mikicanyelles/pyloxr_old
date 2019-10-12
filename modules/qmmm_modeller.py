@@ -131,12 +131,14 @@ def saver(u, argsdict, frame, ligand, radius):
     sys.stderr = stderr_
 
     if frame == None:
-        selection = u.select_atoms('protein or (byres around %s resname %s)' % (radius, ligand))
+        #selection = u.select_atoms('protein or (byres around %s resname %s)' % (radius, ligand))
+        selection = u.select_atoms('byres not ((resname HOH or resname WAT or resname Na+ or resname Cl-) and (not (around %s resname %s)))' % (radius, ligand))
         selection.write('qmmm_models/qmmm_model_%s.pdb' % (str(argsdict['frame'])[:str(argsdict['frame']).find('.pdb')]))
 
     elif frame != None:
         u.trajectory[frame-1]
-        selection = u.select_atoms('protein or (byres around %s resname %s)' % (radius, ligand))
+#        selection = u.select_atoms('protein or (byres around %s resname %s)' % (radius, ligand))
+        selection = u.select_atoms('byres not ((resname HOH or resname WAT or resname Na+ or resname Cl-) and (not (around %s resname %s)))' % (radius, ligand))
         selection.write('qmmm_models/qmmm_model_%s.pdb' % frame)
 
     stderr_.close()
@@ -197,16 +199,19 @@ def topology_modeller_traj(u, argsdict, frame, ligand, radius):
 
     topology = load_file(argsdict['parameters'], xyz='.temporal.pdb')
     topology.box = None
-    topology.strip(':WAT&!:%s<@%s' % (ligand, radius))
-    topology.strip(':Na+&!:%s<@%s' % (ligand, radius))
-    topology.strip(':Cl-&!:%s<@%s' % (ligand, radius))
+    topology.strip(':WAT&!(:%s<:%s)' % (ligand, radius))
+    topology.strip(':HOH&!(:%s<:%s)' % (ligand, radius))
+    topology.strip(':Na+&!(:%s<:%s)' % (ligand, radius))
+    topology.strip(':Cl-&!(:%s<:%s)' % (ligand, radius))
 
     topology.write_parm(name_prmtop)
     topology.save(name_inpcrd)
+    #topology.save(name_inpcrd[:-6] + 'pdb')
+
 
     print('Cropped topology and coordinates have been saved as \'%s\' and \'%s\' in \'qmmm_models\'' % (name_prmtop[12:], name_inpcrd[12:]))
 
-    os.remove('.temporal.pdb')
+    #os.remove('.temporal.pdb')
 
     return name_prmtop, name_inpcrd
 
@@ -217,11 +222,11 @@ def topology_modeller_frame(u, argsdict, frame, ligand, radius):
     top_file = input('Specify the route to the topology: ')
 
 
-#    if len(argsdict['trajectory'][0].split('/')) != 1:
-#        name_prmtop = 'qmmm_models/cropped_%s_%s.prmtop' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
-#        name_inpcrd = 'qmmm_models/cropped_%s_%s.inpcrd' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
-#        name_prmtop = 'qmmm_models\\cropped_%s_%s.prmtop' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
-#        name_inpcrd = 'qmmm_models\\cropped_%s_%s.inpcrd' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
+    #    if len(argsdict['trajectory'][0].split('/')) != 1:
+    #        name_prmtop = 'qmmm_models/cropped_%s_%s.prmtop' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
+    #        name_inpcrd = 'qmmm_models/cropped_%s_%s.inpcrd' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
+    #        name_prmtop = 'qmmm_models\\cropped_%s_%s.prmtop' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
+    #        name_inpcrd = 'qmmm_models\\cropped_%s_%s.inpcrd' % (str(argsdict['parameters'].split('/')[-1])[:str(argsdict['parameters'].split('/')[-1]).find('.prmtop')], radius)
 
     if len(top_file.split('/')) != 1:
         name_prmtop = 'qmmm_models/cropped_%s_%s.prmtop' % (str(top_file.split('/')[-1])[:str(top_file.split('/')[-1]).find('.prmtop')], radius)
@@ -288,30 +293,41 @@ def topology_modeller_frame(u, argsdict, frame, ligand, radius):
 
 def topology_modeller(u, argsdict, frame, ligand, radius):
 
-    while True:
-        quest = input('Do you want to generate also the cropped topology and parameters and coordinates files? (y/n) ')
-        if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
-            name_inpcrd = None
-            name_prmtop = None
-            break
-
-        elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
-            if argsdict['trajectory'] != argsdict['parameters']:
-                name_prmtop, name_inpcrd = topology_modeller_traj(u, argsdict, frame, ligand, radius)
+    #try:
+    #    import parmed as pmd
+    #    del pmd
+    #except ImportError:
+    #    print('ParmEd module is not installed. If you wish to crop also the topology and parameters and coordinates files, please, install it.')
+    #    quest = None
+    #    name_inpcrd = None
+    #    name_prmtop = None
+    
+    quest = None
+    if quest != None:
+        while True:
+            quest = input('Do you want to generate also the cropped topology and parameters and coordinates files? (y/n) ')
+            if quest in ('n', 'no', 'N', 'No', 'No', 'nO', '0'):
+                name_inpcrd = None
+                name_prmtop = None
                 break
-            elif argsdict['trajectory'] == argsdict['parameters']:
-                name_prmtop, name_inpcrd = topology_modeller_frame(u, argsdict, frame, ligand, radius)
-                break
 
-        else :
-            print('Answer \'yes\' or \'no\'.')
+            elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+                if argsdict['trajectory'] != argsdict['parameters']:
+                    name_prmtop, name_inpcrd = topology_modeller_traj(u, argsdict, frame, ligand, radius)
+                    break
+                elif argsdict['trajectory'] == argsdict['parameters']:
+                    name_prmtop, name_inpcrd = topology_modeller_frame(u, argsdict, frame, ligand, radius)
+                    break
 
-            continue
+            else :
+                print('Answer \'yes\' or \'no\'.')
+
+                continue
 
     return name_prmtop, name_inpcrd
 
 
-def set_act(name_prmtop, name_inpcrd):
+def set_act(name_prmtop, name_inpcrd, radius):
     from MDAnalysis import Universe
 
     u_set_act = Universe(name_prmtop, name_inpcrd)
@@ -353,72 +369,18 @@ def set_act(name_prmtop, name_inpcrd):
 
     while True:
         try :
-            radius = float(input("Which is the desired radius (in Å)? "))
-            break
-        except ValueError:
-            print("Type just the number, please.")
-            continue
-
-    selection = u_set_act.select_atoms(str('around %s bynum %s' % (radius, carbon)))
-    txt = open('qmmm_models/set_act_%s_%s' % (name_prmtop[12:-6], radius), 'w')
-    txt.write('set act { ')
-    for i in range(0, len(selection)):
-        locA = str(selection[i]).find('<Atom ') + 6
-        locB = str(selection[i]).find(': ')
-        txt.write(str(selection[i])[locA:locB] + " ")
-    txt.write("} ")
-    txt.close()
-
-def set_act_res(name_prmtop, name_inpcrd):
-    from MDAnalysis import Universe
-
-    u_set_act = Universe(name_prmtop, name_inpcrd)
-
-    while True:
-        try :
-            carbon = input("Type the number of the central atom: ")
-            sel_carbon = str(u_set_act.select_atoms("bynum %s" % carbon))
-            locA = sel_carbon.find('[<') + 2
-            locB = sel_carbon.find(' and segid')
-            break
-        except SelectionError:
-            print('The selection does not exists. Please, type an atom that exists.')
-            continue
-
-
-
-    while True:
-        try :
-            quest = input('You selected this atom: %s. Is it correct ([y]/n)? ' % sel_carbon[locA:locB])
-
-            if quest in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
-                while True:
-                    try:
-                        carbon = input("Type the number of the central carbon: ")
-                        sel_carbon = str(u_set_act.select_atoms("bynum %s" % carbon))
-                        locA = sel_carbon.find('[<') + 2
-                        locB = sel_carbon.find(' and segid')
-                        break
-                    except SelectionError:
-                        continue
-                continue
-
-            elif quest in ('', 'y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', '1'):
+            radius_set_act = float(input("Which is the desired radius (in Å)? "))
+            if radius_set_act < radius:
                 break
-
-        except ValueError:
-            print("Type just \'yes\' or \'no\'.")
-
-    while True:
-        try :
-            radius = float(input("Which is the desired radius (in Å)? "))
-            break
+            elif radius_set_act >= radius:
+                print('The selected radius for the set_act list is smaller than the radius of solvent. Please, choose a new radius for the active atoms.')
+                continue
         except ValueError:
             print("Type just the number, please.")
             continue
 
-    selection = u_set_act.select_atoms(str('byres around %s bynum %s' % (radius, carbon)))
-    txt = open('qmmm_models/set_act_%s_%s' % (name_prmtop[12:-6], radius), 'w')
+    selection = u_set_act.select_atoms(str('byres around %s bynum %s' % (radius_set_act, carbon)))
+    txt = open('qmmm_models/set_act_%s_%s' % (name_prmtop[12:-6], radius_set_act), 'w')
     txt.write('set act { ')
     for i in range(0, len(selection)):
         locA = str(selection[i]).find('<Atom ') + 6
@@ -426,6 +388,8 @@ def set_act_res(name_prmtop, name_inpcrd):
         txt.write(str(selection[i])[locA:locB] + " ")
     txt.write("} ")
     txt.close()
+
+    print('%s atoms have been set as active for the QM/MM calculation using ChemShell.' % (len(selection)))
 
 
 
@@ -444,7 +408,7 @@ def qmmm_modeller(u, argsdict):
                 if quest in ('n', 'no', 'N', 'No', 'NO', 'nO', '0'):
                     break
                 elif quest in ('y', 'yes', 'Y', 'YES', 'Yes', 'yES', 'YeS', 'yEs', 'YEs', 'yeS', '1'):
-                    set_act_res(name_prmtop, name_inpcrd)
+                    set_act(name_prmtop, name_inpcrd, radius)
                     break
                 else :
                     print('Answer just \'yes\' or \'no\'.')
